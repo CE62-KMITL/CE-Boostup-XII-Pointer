@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import PocketBase from 'pocketbase';
 
-	const pb = new PocketBase(PUBLIC_POCKETBASE_URL);
+	const POCKETBASE_URL = import.meta.env.VITE_POCKETBASE_URL as string;
 
-	async function login(form: HTMLFormElement) {
+	const pb = new PocketBase(POCKETBASE_URL);
+
+	async function login(form: HTMLFormElement): Promise<void> {
 		try {
 			await pb.collection('users').authWithOAuth2({ provider: 'google' });
 			form.token.value = pb.authStore.token;
@@ -13,9 +14,15 @@
 			console.error(err);
 		}
 	}
+
+	async function handleLoginFormSubmit(
+		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
+	): Promise<void> {
+		login(event.currentTarget);
+	}
 </script>
 
-<form method="post" on:submit|preventDefault={(e) => login(e.currentTarget)}>
+<form method="post" on:submit|preventDefault={handleLoginFormSubmit}>
 	<input name="token" type="hidden" />
 	<button class="mt-10 rounded border bg-gray-800 p-2 text-white hover:bg-gray-700">
 		Login using Google

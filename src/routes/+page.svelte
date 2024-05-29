@@ -1,3 +1,9 @@
+<script lang="ts">
+	function handleLogoutButton(): void {
+		window.location.href = '/auth';
+	}
+</script>
+
 <svelte:head>
 	<title>CE Boostup XII Pointer</title>
 </svelte:head>
@@ -7,7 +13,7 @@
 
 <button
 	class="mt-10 rounded border bg-gray-800 p-2 text-white hover:bg-gray-700"
-	on:click={() => (window.location.href = '/auth')}
+	on:click={handleLogoutButton}
 >
 	Logout
 </button>

@@ -1,12 +1,14 @@
 import { redirect, type Handle } from '@sveltejs/kit';
 import PocketBase from 'pocketbase';
+
 import { building } from '$app/environment';
-import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+
+const POCKETBASE_URL = import.meta.env.VITE_POCKETBASE_URL as string;
 
 export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.id = '';
 	event.locals.email = '';
-	event.locals.pb = new PocketBase(PUBLIC_POCKETBASE_URL);
+	event.locals.pb = new PocketBase(POCKETBASE_URL);
 
 	const isAuth: boolean = event.url.pathname === '/auth';
 	if (isAuth || building) {

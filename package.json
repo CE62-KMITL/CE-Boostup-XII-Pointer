@@ -9,7 +9,7 @@
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check . && eslint .",
+		"lint": "eslint . --fix && prettier --check .",
 		"format": "prettier --write .",
 		"test:integration": "playwright test",
 		"test:unit": "vitest"
@@ -26,6 +26,7 @@
 		"autoprefixer": "^10.4.19",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-svelte": "^2.39.0",
 		"postcss": "^8.4.38",
 		"prettier": "^3.2.5",
