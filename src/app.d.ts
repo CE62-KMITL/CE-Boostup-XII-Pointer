@@ -3,13 +3,14 @@
 
 import Pocketbase from 'pocketbase';
 
+import type { UserAuthModel } from '$lib/interfaces/userAuthModel.interface';
+
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			pb: Pocketbase;
-			id: string;
-			email: string;
+			pocketbase: Pocketbase;
+			user: UserAuthModel | undefined;
 		}
 		// interface PageData {}
 		// interface PageState {}

@@ -1,42 +1,34 @@
-import { redirect, type Handle } from '@sveltejs/kit';
+import { type Handle } from '@sveltejs/kit';
 import PocketBase from 'pocketbase';
 
-import { building } from '$app/environment';
-import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+import { PRIVATE_POCKETBASE_URL } from '$env/static/private';
+import type { UserAuthModel } from '$lib/interfaces/userAuthModel.interface';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	event.locals.id = '';
-	event.locals.email = '';
-	event.locals.pb = new PocketBase(PUBLIC_POCKETBASE_URL);
+	event.locals.pocketbase = new PocketBase(PRIVATE_POCKETBASE_URL);
 
-	const isAuth: boolean = event.url.pathname === '/auth';
-	if (isAuth || building) {
-		event.cookies.set('pb_auth', '', { path: '/' });
-		return await resolve(event);
+	event.locals.pocketbase.authStore.loadFromCookie(event.request.headers.get('cookie') ?? '');
+
+	if (event.locals.pocketbase.authStore.isValid) {
+		try {
+			await event.locals.pocketbase.collection('users').authRefresh();
+		} catch (_) {
+			event.locals.pocketbase.authStore.clear();
+		}
+	} else {
+		event.locals.pocketbase.authStore.clear();
 	}
 
-	const pb_auth = event.request.headers.get('cookie') ?? '';
-	event.locals.pb.authStore.loadFromCookie(pb_auth);
-
-	if (!event.locals.pb.authStore.isValid) {
-		throw redirect(303, '/auth');
-	}
-	try {
-		const auth = await event.locals.pb
-			.collection('users')
-			.authRefresh<{ id: string; email: string }>();
-		event.locals.id = auth.record.id;
-		event.locals.email = auth.record.email;
-	} catch (_) {
-		throw redirect(303, '/auth');
-	}
-
-	if (!event.locals.id) {
-		throw redirect(303, '/auth');
-	}
+	event.locals.user = event.locals.pocketbase.authStore.model as UserAuthModel | undefined;
 
 	const response = await resolve(event);
-	const cookie = event.locals.pb.authStore.exportToCookie({ sameSite: 'lax' });
-	response.headers.append('set-cookie', cookie);
+
+	response.headers.append(
+		'set-cookie',
+		event.locals.pocketbase.authStore.exportToCookie({
+			httpOnly: false
+		})
+	);
+
 	return response;
 };
