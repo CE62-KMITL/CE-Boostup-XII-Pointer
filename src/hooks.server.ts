@@ -1,11 +1,11 @@
 import { type Handle } from '@sveltejs/kit';
 import PocketBase from 'pocketbase';
 
-import { PRIVATE_POCKETBASE_URL } from '$env/static/private';
+import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 import type { UserAuthModel } from '$lib/interfaces/userAuthModel.interface';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	event.locals.pocketbase = new PocketBase(PRIVATE_POCKETBASE_URL);
+	event.locals.pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 	event.locals.pocketbase.authStore.loadFromCookie(event.request.headers.get('cookie') ?? '');
 

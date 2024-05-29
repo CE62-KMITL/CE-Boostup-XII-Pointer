@@ -1,13 +1,21 @@
 <script lang="ts">
-	import PocketBase from 'pocketbase';
+	import { pocketbase } from '$lib/pocketbase.js';
 	import Cookies from 'js-cookie';
-	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
-
-	const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 	async function login(): Promise<void> {
 		try {
 			const data = await pocketbase.collection('users').authWithOAuth2({ provider: 'google' });
+
+			Cookies.set(
+				'pb_auth',
+				JSON.stringify({ token: pocketbase.authStore.token, model: pocketbase.authStore.model }),
+				{
+					path: '/',
+					secure: true,
+					sameSite: 'strict'
+				}
+			);
+
 			const meta = data.meta;
 
 			if (meta && meta.isNew) {
@@ -23,19 +31,15 @@
 						formData.append('avatar', await avatarResponse.blob());
 					}
 				}
-
-				await pocketbase.collection('users').update(data.record.id, formData);
+				try {
+					await pocketbase.collection('users').update(data.record.id, formData);
+				} catch (err) {
+					console.error(err);
+					// TODO: Add toast or something
+				}
 			}
 
-			Cookies.set(
-				'pb_auth',
-				JSON.stringify({ token: pocketbase.authStore.token, model: pocketbase.authStore.model }),
-				{
-					path: '/',
-					secure: true,
-					sameSite: 'strict'
-				}
-			);
+			location.href = '/';
 		} catch (err) {
 			console.error(err);
 			// TODO: Add toast or something
