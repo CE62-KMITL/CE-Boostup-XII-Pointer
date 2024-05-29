@@ -1,20 +1,9 @@
 <script lang="ts">
 	import { pocketbase } from '$lib/pocketbase.js';
-	import Cookies from 'js-cookie';
 
 	async function login(): Promise<void> {
 		try {
 			const data = await pocketbase.collection('users').authWithOAuth2({ provider: 'google' });
-
-			Cookies.set(
-				'pb_auth',
-				JSON.stringify({ token: pocketbase.authStore.token, model: pocketbase.authStore.model }),
-				{
-					path: '/',
-					secure: true,
-					sameSite: 'strict'
-				}
-			);
 
 			const meta = data.meta;
 

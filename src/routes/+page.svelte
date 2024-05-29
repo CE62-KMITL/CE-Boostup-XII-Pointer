@@ -1,24 +1,28 @@
 <script lang="ts">
+	import type { UserAuthModel } from '$lib/interfaces/userAuthModel.interface';
 	import { pocketbase } from '$lib/pocketbase.js';
 
-	export let data;
+	const user = pocketbase.authStore.model as UserAuthModel | undefined;
 
-	console.log(pocketbase.authStore.model);
+	async function logout(): Promise<void> {
+		pocketbase.authStore.clear();
+	}
 </script>
 
 <svelte:head>
 	<title>CE Boostup XII Pointer</title>
 </svelte:head>
 
-{#if data.user}
-	<h1 class="text-4xl">Welcome to SvelteKit {data.user.name} &lt;{data.user.email}&gt;!</h1>
+{#if user}
+	<h1 class="text-4xl">Welcome to SvelteKit {user.name} &lt;{user.email}&gt;!</h1>
 	<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-	<img src={pocketbase.files.getUrl(data.user, data.user.avatar)} alt="Avatar" />
-	<form action="/logout" method="post">
-		<button type="submit" class="mt-10 rounded border bg-gray-800 p-2 text-white hover:bg-gray-700">
-			Logout
-		</button>
-	</form>
+	<img src={pocketbase.files.getUrl(user, user.avatar)} alt="Avatar" />
+	<button
+		on:click={logout}
+		class="mt-10 rounded border bg-gray-800 p-2 text-white hover:bg-gray-700"
+	>
+		Logout
+	</button>
 {:else}
 	<h1 class="text-4xl">Welcome to SvelteKit</h1>
 	<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
