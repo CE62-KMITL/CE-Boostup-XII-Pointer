@@ -20,6 +20,7 @@
 						formData.append('avatar', await avatarResponse.blob());
 					}
 				}
+
 				try {
 					await pocketbase.collection('users').update(data.record.id, formData);
 				} catch (err) {
