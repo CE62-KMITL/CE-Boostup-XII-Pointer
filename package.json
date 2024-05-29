@@ -4,8 +4,10 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
+		"build:watch": "vite build --watch",
 		"build": "vite build",
 		"preview": "vite preview",
+		"preview:nodemon": "nodemon --env-file=.env build/index.js",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -43,5 +45,8 @@
 	"type": "module",
 	"dependencies": {
 		"pocketbase": "^0.21.2"
+	},
+	"nodemonConfig": {
+		"delay": 1000
 	}
 }

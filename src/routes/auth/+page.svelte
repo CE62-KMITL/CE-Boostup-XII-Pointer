@@ -1,9 +1,9 @@
 <script lang="ts">
 	import PocketBase from 'pocketbase';
 
-	const POCKETBASE_URL = import.meta.env.VITE_POCKETBASE_URL as string;
+	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
-	const pb = new PocketBase(POCKETBASE_URL);
+	const pb = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 	async function login(form: HTMLFormElement): Promise<void> {
 		try {
