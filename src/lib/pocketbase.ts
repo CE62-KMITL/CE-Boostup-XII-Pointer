@@ -3,9 +3,9 @@ import { writable } from 'svelte/store';
 
 import { type UserAuthModel } from './interfaces/userAuthModel.interface';
 
-import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+// import { PUBLIC_POCKETBASE_URL } from '$env/static/public';  // TODO: Re-enable this
 
-export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
+export const pocketbase = new PocketBase('https://pointer.ceboostup.com/pocketbase');
 
 export const currentUser = writable(pocketbase.authStore.model as UserAuthModel);
 

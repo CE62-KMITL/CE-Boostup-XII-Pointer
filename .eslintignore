@@ -12,4 +12,6 @@ pnpm-lock.yaml
 package-lock.json
 yarn.lock
 
-pocketbase
+/pocketbase
+/src/lib/components
+/src/lib/utils.ts
