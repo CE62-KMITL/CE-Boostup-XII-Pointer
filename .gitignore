@@ -9,4 +9,5 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 *.secret.*
-pb_data
+/pocketbase/ce-boostup-xii-pointer
+/pocketbase/pb_data
