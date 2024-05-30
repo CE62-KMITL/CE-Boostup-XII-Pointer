@@ -3,6 +3,7 @@
 	import Sun from 'lucide-svelte/icons/sun';
 	import { ModeWatcher, resetMode, setMode } from 'mode-watcher';
 	import { toast } from 'svelte-sonner';
+	import Device from 'svelte-device-info';
 
 	import '../app.css';
 
@@ -17,6 +18,10 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
+
+	let innerWidth = 0;
+
+	$: isPhone = (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
 
 	async function login(): Promise<void> {
 		try {
@@ -43,14 +48,14 @@
 				} catch (err) {
 					console.error(err);
 					toast.error('An error occured during user data update', {
-						description: 'More information has been logged to the console'
+						description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
 					});
 				}
 			}
 		} catch (err) {
 			console.error(err);
 			toast.error('An error occured during OAuth2 flow', {
-				description: 'More information has been logged to the console'
+				description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
 			});
 			return;
 		}
@@ -71,10 +76,15 @@
 		}
 	};
 
-	let updateUserName = $currentUser.name;
+	let updateUserName = $currentUser?.name ?? '';
 	let updateUserAvatar: FileList;
 
 	async function updateUser(): Promise<void> {
+		if (!$currentUser) {
+			toast.error('You must be logged in to update your profile');
+			return;
+		}
+
 		const formData = new FormData();
 
 		formData.append('name', updateUserName);
@@ -84,20 +94,22 @@
 			formData.append('avatar', avatarFile);
 		}
 
-		try {
-			await pocketbase.collection('users').update($currentUser.id, formData);
-			toast.success('Profile updated successfully!');
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occured during user data update', {
-				description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-			});
-		}
+		const updatePromise = pocketbase.collection('users').update($currentUser.id, formData);
+		toast.promise(updatePromise, {
+			loading: 'Updating profile...',
+			success: 'Profile updated successfully!',
+			error: (err) => {
+				console.error(err);
+				return `An error occured during user profile update: ${err instanceof Error ? err.message : 'Unknown error'}`;
+			}
+		});
 	}
 </script>
 
+<svelte:window bind:innerWidth />
+
 <ModeWatcher />
-<Toaster richColors closeButton />
+<Toaster richColors closeButton position={isPhone ? 'top-center' : 'bottom-right'} />
 
 <nav class="mx-2 my-1 flex justify-between">
 	<div class="flex items-center space-x-4">
@@ -154,7 +166,7 @@
 	<Sheet.Trigger asChild let:builder>
 		<Button builders={[builder]} id="open-profile-edit" class="hidden">Open</Button>
 	</Sheet.Trigger>
-	<Sheet.Content side="bottom">
+	<Sheet.Content side={isPhone ? 'bottom' : 'right'}>
 		<Sheet.Header>
 			<Sheet.Title>Edit profile</Sheet.Title>
 			<Sheet.Description>
