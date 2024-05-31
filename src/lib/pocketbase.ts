@@ -4,9 +4,9 @@ import { toast } from 'svelte-sonner';
 
 import { type UserAuthModel } from './interfaces/userAuthModel.interface';
 
-// import { PUBLIC_POCKETBASE_URL } from '$env/static/public';  // TODO: Re-enable this
+import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
-export const pocketbase = new PocketBase('https://pointer.ceboostup.com/pocketbase'); // TODO: Use PUBLIC_POCKETBASE_URL
+export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = readable<UserAuthModel | undefined>(
 	pocketbase.authStore.model as UserAuthModel | undefined,
