@@ -69,8 +69,10 @@
 
 	const setModeLight = (): void => setMode('light');
 	const setModeDark = (): void => setMode('dark');
+
+	let openProfileEditButton: Button;
+
 	const openProfileEdit = (): void => {
-		const openProfileEditButton = document.getElementById('open-profile-edit');
 		if (openProfileEditButton) {
 			openProfileEditButton.click();
 		}
@@ -164,7 +166,7 @@
 
 <Sheet.Root>
 	<Sheet.Trigger asChild let:builder>
-		<Button builders={[builder]} id="open-profile-edit" class="hidden">Open</Button>
+		<Button builders={[builder]} bind:this={openProfileEditButton} class="hidden">Open</Button>
 	</Sheet.Trigger>
 	<Sheet.Content side={isPhone ? 'bottom' : 'right'}>
 		<Sheet.Header>
