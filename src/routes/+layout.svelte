@@ -7,13 +7,11 @@
 
 	import '../app.css';
 
-	import logo from '$lib/assets/logo/logo-128x128.avif';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button/index';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Input } from '$lib/components/ui/input/index';
 	import { Label } from '$lib/components/ui/label/index';
-	import { Separator } from '$lib/components/ui/separator';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
@@ -70,9 +68,9 @@
 	const setModeLight = (): void => setMode('light');
 	const setModeDark = (): void => setMode('dark');
 
-	let openProfileEditButton: Button;
-
 	const openProfileEdit = (): void => {
+		const openProfileEditButton = document.getElementById('openProfileEditButton');
+
 		if (openProfileEditButton) {
 			openProfileEditButton.click();
 		}
@@ -113,10 +111,10 @@
 <ModeWatcher />
 <Toaster richColors closeButton position={isPhone ? 'top-center' : 'bottom-right'} />
 
-<nav class="mx-2 my-1 flex justify-between">
-	<div class="flex items-center space-x-4">
-		<img src={logo} alt="Logo" class="h-12 w-12" />
-		<h1 class="text-ellipsis text-nowrap text-xl font-medium">CE Boostup XII</h1>
+<nav class="mx-4 mb-1 mt-6 flex justify-between">
+	<div>
+		<h1 class="text-2xl font-bold">Pointer</h1>
+		<h2 class="text-base font-medium">เว็บเก็บคะแนน CE Boost Up 12</h2>
 	</div>
 	<div class="flex items-center space-x-4">
 		<DropdownMenu.Root>
@@ -162,11 +160,10 @@
 		{/if}
 	</div>
 </nav>
-<Separator />
 
 <Sheet.Root>
 	<Sheet.Trigger asChild let:builder>
-		<Button builders={[builder]} bind:this={openProfileEditButton} class="hidden">Open</Button>
+		<Button builders={[builder]} id="openProfileEditButton" class="hidden">Open</Button>
 	</Sheet.Trigger>
 	<Sheet.Content side={isPhone ? 'bottom' : 'right'}>
 		<Sheet.Header>

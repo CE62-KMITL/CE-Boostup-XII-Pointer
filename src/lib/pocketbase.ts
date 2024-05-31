@@ -2,7 +2,7 @@ import PocketBase from 'pocketbase';
 import { readable } from 'svelte/store';
 import { toast } from 'svelte-sonner';
 
-import { type UserAuthModel } from './interfaces/userAuthModel.interface';
+import { type UserAuthModel } from './interfaces/user-auth-model.interface';
 
 import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
@@ -21,6 +21,7 @@ export const currentUser = readable<UserAuthModel | undefined>(
 );
 
 async function refresh(): Promise<void> {
+	console.log('hi');
 	try {
 		await pocketbase.collection('users').authRefresh();
 	} catch (err) {
