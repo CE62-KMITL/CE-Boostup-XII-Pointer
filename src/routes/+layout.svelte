@@ -2,11 +2,12 @@
 	import Moon from 'lucide-svelte/icons/moon';
 	import Sun from 'lucide-svelte/icons/sun';
 	import { ModeWatcher, resetMode, setMode } from 'mode-watcher';
-	import { toast } from 'svelte-sonner';
 	import Device from 'svelte-device-info';
+	import { toast } from 'svelte-sonner';
 
 	import '../app.css';
 
+	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button/index';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -107,6 +108,10 @@
 </script>
 
 <svelte:window bind:innerWidth />
+
+<svelte:head>
+	<link rel="preconnect" href={PUBLIC_POCKETBASE_URL} />
+</svelte:head>
 
 <ModeWatcher />
 <Toaster richColors closeButton position={isPhone ? 'top-center' : 'bottom-right'} />

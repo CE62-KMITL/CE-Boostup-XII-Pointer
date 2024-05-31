@@ -21,3 +21,15 @@
 		style={`transform: translateX(-${100 - (100 * (value ?? 0)) / (max ?? 1)}%)`}
 	></div>
 </ProgressPrimitive.Root>
+
+<style lang="postcss">
+	.in-progress-progress {
+        @apply bg-green-600;
+    }
+    .finished-progress {
+        @apply bg-yellow-500;
+    }
+    .claimed-progress {
+        @apply bg-gray-500;
+    }
+</style>

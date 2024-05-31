@@ -21,7 +21,6 @@ export const currentUser = readable<UserAuthModel | undefined>(
 );
 
 async function refresh(): Promise<void> {
-	console.log('hi');
 	try {
 		await pocketbase.collection('users').authRefresh();
 	} catch (err) {
