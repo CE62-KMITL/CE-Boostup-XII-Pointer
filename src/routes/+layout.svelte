@@ -119,56 +119,6 @@
 <ModeWatcher />
 <Toaster richColors closeButton position={isPhone ? 'top-center' : 'bottom-right'} />
 
-<nav class="mx-4 mb-1 mt-6 flex justify-between">
-	<div>
-		<h1 class="text-2xl font-bold">Pointer</h1>
-		<h2 class="text-base font-medium">เว็บเก็บคะแนน CE Boost Up 12</h2>
-	</div>
-	<div class="flex items-center space-x-4">
-		<DropdownMenu.Root>
-			<DropdownMenu.Trigger asChild let:builder>
-				<Button builders={[builder]} variant="outline" size="icon">
-					<Sun
-						class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-					/>
-					<Moon
-						class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-					/>
-					<span class="sr-only">Toggle theme</span>
-				</Button>
-			</DropdownMenu.Trigger>
-			<DropdownMenu.Content align="end">
-				<DropdownMenu.Item on:click={setModeLight}>Light</DropdownMenu.Item>
-				<DropdownMenu.Item on:click={setModeDark}>Dark</DropdownMenu.Item>
-				<DropdownMenu.Item on:click={resetMode}>System</DropdownMenu.Item>
-			</DropdownMenu.Content>
-		</DropdownMenu.Root>
-		{#if $currentUser}
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger
-					><Avatar.Root>
-						<Avatar.Image
-							src={pocketbase.files.getUrl($currentUser, $currentUser.avatar, { thumb: '128x128' })}
-							alt="Avatar of {$currentUser.name}"
-						/>
-						<Avatar.Fallback>{getInitial($currentUser.name)}</Avatar.Fallback>
-					</Avatar.Root></DropdownMenu.Trigger
-				>
-				<DropdownMenu.Content>
-					<DropdownMenu.Group>
-						<DropdownMenu.Label>My Account</DropdownMenu.Label>
-						<DropdownMenu.Separator />
-						<DropdownMenu.Item on:click={openProfileEdit}>Profile</DropdownMenu.Item>
-						<DropdownMenu.Item on:click={logout}>Logout</DropdownMenu.Item>
-					</DropdownMenu.Group>
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
-		{:else}
-			<Button on:click={login} variant="outline">Staff</Button>
-		{/if}
-	</div>
-</nav>
-
 <Sheet.Root>
 	<Sheet.Trigger asChild let:builder>
 		<Button builders={[builder]} id="openProfileEditButton" class="hidden">Open</Button>
@@ -203,5 +153,55 @@
 		</Sheet.Footer>
 	</Sheet.Content>
 </Sheet.Root>
+
+<nav class="mx-5 mb-6 mt-6 flex justify-between space-x-4">
+	<div class="w-full min-w-0 flex-grow">
+		<h1 class="text-2xl font-bold">Pointer</h1>
+		<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
+			เว็บเก็บคะแนน CE Boost Up 12
+		</h2>
+	</div>
+	<div class="flex flex-shrink-0 items-center space-x-4">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger asChild let:builder>
+				<Button builders={[builder]} variant="outline" size="icon" class="h-11 w-11 rounded-lg">
+					<Sun class="h-6 w-6 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+					<Moon
+						class="absolute h-6 w-6 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+					/>
+					<span class="sr-only">Toggle theme</span>
+				</Button>
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end">
+				<DropdownMenu.Item on:click={setModeLight}>Light</DropdownMenu.Item>
+				<DropdownMenu.Item on:click={setModeDark}>Dark</DropdownMenu.Item>
+				<DropdownMenu.Item on:click={resetMode}>System</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+		{#if $currentUser}
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger
+					><Avatar.Root class="h-12 w-12">
+						<Avatar.Image
+							src={pocketbase.files.getUrl($currentUser, $currentUser.avatar, { thumb: '128x128' })}
+							alt="Avatar of {$currentUser.name}"
+						/>
+						<Avatar.Fallback>{getInitial($currentUser.name)}</Avatar.Fallback>
+					</Avatar.Root></DropdownMenu.Trigger
+				>
+				<DropdownMenu.Content>
+					<DropdownMenu.Group>
+						<DropdownMenu.Label>My Account</DropdownMenu.Label>
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item on:click={openProfileEdit}>Profile</DropdownMenu.Item>
+						<DropdownMenu.Item on:click={logout}>Logout</DropdownMenu.Item>
+					</DropdownMenu.Group>
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+		{:else}
+			<Button on:click={login} variant="outline">Staff</Button>
+		{/if}
+	</div>
+</nav>
 
 <slot />

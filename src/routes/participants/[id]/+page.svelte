@@ -59,6 +59,6 @@
 	<title>{title}</title>
 </svelte:head>
 
-<ParticipantView {participant} {group} class="m-4" />
-<GroupView {group} {groupScore} class="m-4" />
-<BattlePassView {participant} class="m-4 mt-8" />
+<ParticipantView {participant} {group} class="mx-5 my-4" />
+<GroupView {group} {groupScore} class="mx-5 my-4" />
+<BattlePassView {participant} class="mx-5 mb-4 mt-8" />
