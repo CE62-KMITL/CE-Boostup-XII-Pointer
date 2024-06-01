@@ -37,7 +37,6 @@
 				if (action === 'update') {
 					participant = record;
 				}
-				updateGroupScore(group?.id);
 			});
 		unsubscribes.push(participantsUnsubscribe);
 		const groupUnsubscribe = await pocketbase

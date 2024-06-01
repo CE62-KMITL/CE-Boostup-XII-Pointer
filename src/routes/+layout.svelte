@@ -71,6 +71,8 @@
 	const setModeDark = (): void => setMode('dark');
 
 	const openProfileEdit = (): void => {
+		updateUserName = $currentUser?.name ?? '';
+
 		const openProfileEditButton = document.getElementById('openProfileEditButton');
 
 		if (openProfileEditButton) {
@@ -78,7 +80,7 @@
 		}
 	};
 
-	let updateUserName = $currentUser?.name ?? '';
+	let updateUserName = '';
 	let updateUserAvatar: FileList;
 
 	async function updateUser(): Promise<void> {

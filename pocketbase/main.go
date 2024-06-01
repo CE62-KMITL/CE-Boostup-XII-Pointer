@@ -8,7 +8,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -49,22 +48,33 @@ func main() {
 	app.OnRecordAfterAuthWithOAuth2Request("users").Add(func(e *core.RecordAuthWithOAuth2Event) error {
 		if e.IsNewRecord {
 			if staff, ok := staffMap[e.OAuth2User.Email]; ok {
-				_, err := app.Dao().DB().NewQuery("UPDATE `users` SET `username`={:username}, `emailVisibility`=true WHERE `id`={:id}").Bind(dbx.Params{
-					"id":       e.Record.Id,
-					"username": strings.ReplaceAll(staff.FullNameEN, " ", "_"),
-				}).Execute()
+				e.Record.SetUsername(strings.ReplaceAll(staff.FullNameEN, " ", "_"))
+				e.Record.SetEmailVisibility(true)
 
-				if err != nil {
+				if err := app.Dao().SaveRecord(e.Record); err != nil {
 					log.Fatal(err)
 				}
 			} else {
-				_, err := app.Dao().DB().NewQuery("UPDATE `users` SET `emailVisibility`=true WHERE `id`={:id}").Bind(dbx.Params{
-					"id": e.Record.Id,
-				}).Execute()
+				e.Record.SetEmailVisibility(true)
 
-				if err != nil {
+				if err := app.Dao().SaveRecord(e.Record); err != nil {
 					log.Fatal(err)
 				}
+			}
+		}
+
+		return nil
+	})
+
+	app.OnRecordAfterUpdateRequest("participants").Add(func(e *core.RecordUpdateEvent) error {
+		groupRecord, err := app.Dao().FindRecordById("groups", e.Record.GetString("group"))
+		if err != nil {
+			log.Fatal(err)
+		} else {
+			groupRecord.Set("updateCount", groupRecord.GetInt("updateCount")+1)
+
+			if err := app.Dao().SaveRecord(groupRecord); err != nil {
+				log.Fatal(err)
 			}
 		}
 
