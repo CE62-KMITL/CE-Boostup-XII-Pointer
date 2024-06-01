@@ -17,10 +17,11 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
+	import { browser } from '$app/environment';
 
 	let innerWidth = 0;
 
-	$: isPhone = (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
+	$: isPhone = !browser || (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
 
 	async function login(): Promise<void> {
 		try {

@@ -10,6 +10,8 @@
 
 	export let data;
 
+	let title = 'CE Boostup XII - Participant';
+
 	let participant: ParticipantModel | undefined = undefined;
 	let group: GroupModel | undefined = undefined;
 	let groupScore: number | undefined = undefined;
@@ -26,6 +28,7 @@
 		participant = (await pocketbase.collection('participants').getOne(data.id, {
 			expand: 'group'
 		})) as ParticipantModel;
+		title = `CE Boostup XII - ${participant.name}`;
 		group = participant.expand.group;
 		updateGroupScore(group.id);
 		const participantsUnsubscribe = await pocketbase
@@ -53,10 +56,10 @@
 	});
 </script>
 
-{#if participant === undefined || group === undefined}
-	<p>Loading...</p>
-{:else}
-	<ParticipantView {participant} {group} class="m-4" />
-	<GroupView {group} {groupScore} class="m-4" />
-	<BattlePassView {participant} class="m-4" />
-{/if}
+<svelte:head>
+	<title>{title}</title>
+</svelte:head>
+
+<ParticipantView {participant} {group} class="m-4" />
+<GroupView {group} {groupScore} class="m-4" />
+<BattlePassView {participant} class="m-4" />

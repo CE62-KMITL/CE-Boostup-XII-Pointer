@@ -2,6 +2,7 @@
 	import type { ItemModel } from "$lib/interfaces/ItemModel.interface";
 	import type { ParticipantModel } from "$lib/interfaces/participant-model.interface";
 	import { pocketbase } from "$lib/pocketbase";
+    import { Skeleton } from "$lib/components/ui/skeleton";
 	import { onDestroy, onMount } from "svelte";
 	import ItemView from "./ItemView.svelte";
     import { flip } from "svelte/animate";
@@ -11,7 +12,7 @@
 
     let className: string = '';
     export { className as class };
-    export let participant: ParticipantModel;
+    export let participant: ParticipantModel | undefined;
     let items: ItemModel[] | undefined = undefined;
 
     let unsubscribes: (() => void)[] = [];
@@ -48,10 +49,13 @@
 </script>
 
 <div class={className}>
-    <p class="font-bold text-lg">Battle Pass ส่วนตัว</p>
-    {#if items === undefined}
-        <p>Loading...</p>
+    {#if participant === undefined || items === undefined}
+        <Skeleton class="h-5 my-2 w-40 mt-6" />
+        {#each Array(5) as _}
+            <Skeleton class="h-20 mt-2" />
+        {/each}
     {:else}
+        <p class="font-bold text-lg">Battle Pass ส่วนตัว</p>
         {#each items as item (item.id)}
             <div animate:flip={{duration: animationDuration}} in:fade={{duration: animationDuration}} out:fade={{duration: animationDuration}}>
                 <ItemView {participant} {item} class="mt-2 rounded-lg overflow-hidden drop-shadow-md" />

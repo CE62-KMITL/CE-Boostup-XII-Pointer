@@ -17,8 +17,8 @@
     <div class="flex bg-gray-50 dark:bg-gray-900">
         <div class="flex-grow flex-shrink w-full min-w-0 p-3">
             <p class="text-base font-medium text-ellipsis text-nowrap overflow-hidden w-full">{item.name}</p>
-            <p class={cn("text-sm font-medium transition-all duration-500", itemStatus + '-score')}>{participant.score} / {item.cost}</p>
-            <Progress value={participant.score/item.cost*100} class="h-3 w-auto bg-gray-300 border-gray-300 dark:bg-gray-700 dark:border-gray-700 border-2" subClass={cn("rounded-full duration-500", itemStatus + '-progress')} />
+            <p class={cn("text-sm font-medium transition-all duration-500", itemStatus + '-score')}>{participant.score.toLocaleString('en-US', { maximumFractionDigits: 2})} / {item.cost.toLocaleString('en-US', { maximumFractionDigits: 2})}</p>
+            <Progress value={participant.score/item.cost} max={1} class="h-3 w-auto bg-gray-300 border-gray-300 dark:bg-gray-700 dark:border-gray-700 border-2" subClass={cn("rounded-full duration-500", itemStatus + '-progress')} />
         </div>
         <div class="border-l border-gray-400 w-32 flex justify-center items-center p-3">
             <p class={cn("font-medium text-sm transition-all duration-500", itemStatus + '-text')}>{itemStatusText}</p>
