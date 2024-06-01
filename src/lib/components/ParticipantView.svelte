@@ -19,7 +19,7 @@
                 <Skeleton class="w-14 h-14 rounded-full" />
                 <div>
                     <Skeleton class="w-28 h-4 my-1" />
-                    <Skeleton class="w-16 h-4 my-1" />
+                    <Skeleton class="w-20 h-4 my-1" />
                 </div>
             </div>
             <div class="ml-auto">
@@ -46,8 +46,8 @@
             </div>
             <div class="ml-auto">
                 <p class="font-medium text-gray-600 dark:text-gray-400 text-end">คะแนน</p>
-                <div class="flex justify-center items-center w-32 h-10 rounded-lg bg-green-700">
-                    <p class="text-white font-bold text-xl">{participant.score.toLocaleString("en-US", { maximumFractionDigits: 2})}</p>
+                <div class="text-center w-32 h-10 rounded-lg bg-cprimary">
+                    <p class="text-white font-bold text-xl p-2">{participant.score.toLocaleString("en-US", { maximumFractionDigits: 2})}</p>
                 </div>
             </div>
         </div>

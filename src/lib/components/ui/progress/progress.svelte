@@ -24,7 +24,7 @@
 
 <style lang="postcss">
 	.in-progress-progress {
-        @apply bg-green-600;
+        @apply bg-cprimary;
     }
     .finished-progress {
         @apply bg-yellow-500;

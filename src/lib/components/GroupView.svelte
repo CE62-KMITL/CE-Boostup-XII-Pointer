@@ -17,8 +17,8 @@
         <p class="font-bold text-lg">คะแนนบ้าน {group.name}</p>
         <div style="background-image: url({banner});" class="rounded-lg h-16 w-auto mt-2 relative -z-20 bg-cover bg-center">
             <div class="absolute top-0 left-0 w-full h-full bg-white dark:bg-black opacity-80 rounded-lg -z-10"></div>
-            <div class="w-auto h-full flex justify-center items-center">
-                <p class="font-bold text-3xl">
+            <div class="w-auto h-full text-center">
+                <p class="font-bold text-3xl p-4">
                     {groupScore.toLocaleString("en-US", { maximumFractionDigits: 2})}
                 </p>
             </div>

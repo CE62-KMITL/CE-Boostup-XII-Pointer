@@ -62,4 +62,4 @@
 
 <ParticipantView {participant} {group} class="m-4" />
 <GroupView {group} {groupScore} class="m-4" />
-<BattlePassView {participant} class="m-4" />
+<BattlePassView {participant} class="m-4 mt-8" />
