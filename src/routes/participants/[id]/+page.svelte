@@ -76,7 +76,7 @@
 
 {#if participant === null}
 	{#if $currentUser}
-		<ParticipantCreate id={data.id} on:created={init} />
+		<ParticipantCreate id={data.id} on:created={init} class="mx-5 my-4" />
 	{:else}
 		<div class="mt-20 text-center">
 			<div class="mb-8 flex justify-center">

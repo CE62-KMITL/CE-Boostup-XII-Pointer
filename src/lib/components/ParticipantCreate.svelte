@@ -11,6 +11,8 @@
 	import { onDestroy, onMount } from 'svelte';
     import { toast } from 'svelte-sonner';
     import { createEventDispatcher } from 'svelte'
+    import * as Avatar from '$lib/components/ui/avatar';
+	import { getInitial } from '$lib/get-initial';
 
     let className: string = '';
     export { className as class };
@@ -90,35 +92,42 @@
 
 <form use:form class={className}>
     <Label for="name">ชื่อเล่น</Label>
-	<Input name="name" value="น้อง"/>
+	<Input name="name" value="น้อง" class="mb-4" />
     {#if $errors.name}
         {#each $errors.name as error}
             <p class="text-red-500">{error}</p>
         {/each}
     {/if}
     <Label for="fullName">ชื่อ-นามสกุล</Label>
-	<Input name="fullName"/>
+	<Input name="fullName" class="mb-4" />
     {#if $errors.fullName}
         {#each $errors.fullName as error}
             <p class="text-red-500">{error}</p>
         {/each}
     {/if}
     <input hidden name="group">
-    <Select.Root selected={selectedGroup} onSelectedChange={(v) => {
-            if (v) {
-                group = v.value;
-            }
-          ;
-        }}>
-        <Select.Trigger class="w-[180px]">
-            <Select.Value placeholder="บ้าน" />
+    <Label for="groupSelector">บ้าน</Label>
+    <Select.Root selected={selectedGroup} onSelectedChange={(v) => {group = v?.value ?? ''}} name="groupSelector">
+        <Select.Trigger class="mb-4">
+            <Select.Value placeholder="เลือกบ้าน" />
         </Select.Trigger>
         <Select.Content>
             {#if groups === undefined}
                 <Select.Item value="None">Loading...</Select.Item>
             {:else}
                 {#each groups as group}
-                    <Select.Item value={group.id} label={`บ้าน ${group.name}`} />
+                    <Select.Item value={group.id} label={`บ้าน ${group.name}`} >
+                        <Avatar.Root class="w-8 h-8">
+                            <Avatar.Image
+                                src={pocketbase.files.getUrl(group, group.avatar, {
+                                    thumb: '64x64'
+                                })}
+                                alt="Avatar of {group.name}"
+                            />
+                            <Avatar.Fallback class="text-base font-medium">{getInitial(group.name)}</Avatar.Fallback>
+                        </Avatar.Root>
+                            <p class="ml-2">{`บ้าน ${group.name}`}</p>
+                    </Select.Item>
                 {/each}
             {/if}
         </Select.Content>
@@ -128,5 +137,5 @@
             <p class="text-red-500">{error}</p>
         {/each}
     {/if}
-    <Button type="submit">Save changes</Button>
+    <Button type="submit" class="w-full">ตกลง</Button>
 </form>
