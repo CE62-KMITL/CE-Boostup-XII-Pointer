@@ -18,7 +18,7 @@
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
-	import { currentUser, pocketbase } from '$lib/pocketbase';
+	import { currentUser, pocketbase, logout as pbLogout } from '$lib/pocketbase';
 
 	let innerWidth = 0;
 
@@ -64,7 +64,7 @@
 	}
 
 	async function logout(): Promise<void> {
-		pocketbase.authStore.clear();
+		pbLogout();
 		toast.success('Logged out successfully!');
 	}
 

@@ -23,6 +23,14 @@ export const currentUser = browser
 		)
 	: readable<UserAuthModel | null>(null);
 
+export function logout(): void {
+	pocketbase.collection('users').unsubscribe();
+	pocketbase.collection('participants').unsubscribe();
+	pocketbase.collection('groups').unsubscribe();
+	pocketbase.collection('items').unsubscribe();
+	pocketbase.authStore.clear();
+}
+
 async function refresh(): Promise<void> {
 	try {
 		await pocketbase.collection('users').authRefresh();

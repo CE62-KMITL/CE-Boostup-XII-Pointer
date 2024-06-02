@@ -22,7 +22,7 @@
 	let group: GroupParticipantModel | undefined = undefined;
 	let groupScore: number | undefined = undefined;
 
-	const unsubscribes: (() => void)[] = [];
+	let unsubscribes: (() => void)[] = [];
 
 	async function updateGroupScore(groupId?: string): Promise<void> {
 		if (groupId === undefined) return;
@@ -30,7 +30,26 @@
 			.score;
 	}
 
-	async function init() {
+	let mounted = false;
+	let firstRun = true;
+
+	$: if (mounted) {
+		init(!$currentUser || true);
+	}
+
+	async function init(isReactive: boolean = false) {
+		if (isReactive && firstRun) {
+			firstRun = false;
+			return;
+		}
+		unsubscribes.forEach((unsubscribe) => {
+			try {
+				unsubscribe();
+			} catch (err) {
+				console.error(err);
+			}
+		});
+		unsubscribes = [];
 		try {
 			participant = await pocketbase
 				.collection('participants')
@@ -97,7 +116,10 @@
 		}
 	}
 
-	onMount(init);
+	onMount(async () => {
+		await init();
+		mounted = true;
+	});
 
 	onDestroy(() => {
 		unsubscribes.forEach((unsubscribe) => unsubscribe());
@@ -110,7 +132,13 @@
 
 {#if participant === null}
 	{#if $currentUser}
-		<ParticipantCreate id={data.id} on:created={init} class="mx-5 my-4" />
+		<ParticipantCreate
+			id={data.id}
+			on:created={() => {
+				init();
+			}}
+			class="mx-5 my-4"
+		/>
 	{:else}
 		<div class="mt-20 text-center">
 			<div class="mb-8 flex justify-center">
