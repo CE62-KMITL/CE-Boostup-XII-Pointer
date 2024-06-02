@@ -4,9 +4,12 @@
 	import BattlePassView from '$lib/components/BattlePassView.svelte';
 	import GroupView from '$lib/components/GroupView.svelte';
 	import ParticipantView from '$lib/components/ParticipantView.svelte';
-	import type { GroupModel } from '$lib/interfaces/group-model.interface.js';
+	import type { GroupModel, GroupParticipantModel } from '$lib/interfaces/group-model.interface.js';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
-	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface.js';
+	import type {
+		ParticipantModel,
+		ParticipantGroupModel
+	} from '$lib/interfaces/participant-model.interface.js';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 	import ParticipantCreate from '$lib/components/ParticipantCreate.svelte';
 	import { TriangleAlert } from 'lucide-svelte';
@@ -15,8 +18,8 @@
 
 	let title = 'CE Boostup XII - Participant';
 
-	let participant: ParticipantModel | undefined | null = undefined;
-	let group: GroupModel | undefined = undefined;
+	let participant: ParticipantGroupModel | undefined | null = undefined;
+	let group: GroupParticipantModel | undefined = undefined;
 	let groupScore: number | undefined = undefined;
 
 	const unsubscribes: (() => void)[] = [];
@@ -29,9 +32,11 @@
 
 	async function init() {
 		try {
-			participant = await pocketbase.collection('participants').getOne<ParticipantModel>(data.id, {
-				expand: 'group'
-			});
+			participant = await pocketbase
+				.collection('participants')
+				.getOne<ParticipantGroupModel>(data.id, {
+					expand: 'group'
+				});
 		} catch (err) {
 			participant = null;
 			if ($currentUser) {
@@ -42,25 +47,54 @@
 			return;
 		}
 		title = `CE Boostup XII - ${participant.name}`;
-		group = participant.expand.group;
+		group = participant.expand.group as GroupParticipantModel;
 		updateGroupScore(group.id);
+		if ($currentUser) {
+			group = await pocketbase.collection('groups').getOne<GroupParticipantModel>(group.id, {
+				expand: 'participants_via_group'
+			});
+		}
 		const participantsUnsubscribe = await pocketbase
 			.collection('participants')
-			.subscribe<ParticipantModel>(participant.id, ({ action, record }) => {
-				if (action === 'update') {
-					participant = record;
+			.subscribe<ParticipantGroupModel>(
+				participant.id,
+				({ action, record }) => {
+					if (action === 'update') {
+						participant = record;
+					}
+				},
+				{
+					expand: 'group'
 				}
-			});
+			);
 		unsubscribes.push(participantsUnsubscribe);
-		const groupUnsubscribe = await pocketbase
-			.collection('groups')
-			.subscribe<GroupModel>(group.id, ({ action, record }) => {
-				if (action === 'update') {
-					group = record;
-				}
-				updateGroupScore(group?.id);
-			});
-		unsubscribes.push(groupUnsubscribe);
+		if ($currentUser) {
+			const groupUnsubscribe = await pocketbase
+				.collection('groups')
+				.subscribe<GroupParticipantModel>(
+					group.id,
+					({ action, record }) => {
+						if (action === 'update') {
+							group = record;
+						}
+						updateGroupScore(group?.id);
+					},
+					{
+						expand: 'participants_via_group'
+					}
+				);
+			unsubscribes.push(groupUnsubscribe);
+		} else {
+			const groupUnsubscribe = await pocketbase
+				.collection('groups')
+				.subscribe<GroupParticipantModel>(group.id, ({ action, record }) => {
+					if (action === 'update') {
+						group = record;
+					}
+					updateGroupScore(group?.id);
+				});
+			unsubscribes.push(groupUnsubscribe);
+		}
 	}
 
 	onMount(init);

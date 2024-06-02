@@ -1,45 +1,124 @@
 <script lang="ts">
-	import type { ItemModel } from "$lib/interfaces/ItemModel.interface";
-	import type { ParticipantModel } from "$lib/interfaces/participant-model.interface";
-    import { Progress } from "$lib/components/ui/progress";
-	import { cn } from "$lib/utils";
+	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
+	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import { Progress } from '$lib/components/ui/progress';
+	import { cn } from '$lib/utils';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
+	import { Button } from '$lib/components/ui/button';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { toast } from 'svelte-sonner';
 
-    let className: string = '';
-    export { className as class };
-    export let item: ItemModel;
-    export let participant: ParticipantModel;
+	let className: string = '';
+	export { className as class };
+	export let item: ItemModel;
+	export let participant: ParticipantGroupModel;
 
-    $: itemStatus = participant.itemsUnlocked.includes(item.id) ? 'claimed' : participant.score >= item.cost ? 'finished' : 'in-progress';
-    $: itemStatusText = itemStatus === 'claimed' ? 'รับของแล้ว' : itemStatus === 'finished' ? 'สำเร็จแล้ว' : 'ยังไม่สำเร็จ';
+	$: itemStatus = participant.itemsUnlocked.includes(item.id)
+		? 'claimed'
+		: participant.score >= item.cost
+			? 'finished'
+			: 'in-progress';
+	$: itemStatusText =
+		itemStatus === 'claimed'
+			? 'รับของแล้ว'
+			: itemStatus === 'finished'
+				? 'สำเร็จแล้ว'
+				: 'ยังไม่สำเร็จ';
+
+	async function markItemAsClaimed() {
+		const markItemAsClaimedPromise = pocketbase.collection('participants').update(participant.id, {
+			'itemsUnlocked+': item.id
+		});
+		toast.promise(markItemAsClaimedPromise, {
+			loading: 'Updating data...',
+			success: 'Item marked as claimed!',
+			error: (err) => {
+				console.error(err);
+				return `An error occured during item update: ${err instanceof Error ? err.message : 'Unknown error'}`;
+			}
+		});
+	}
 </script>
 
 <div class={className}>
-    <div class="flex bg-gray-50 dark:bg-gray-900">
-        <div class="flex-grow w-full min-w-0 p-3">
-            <p class="text-base font-medium text-ellipsis text-nowrap overflow-hidden w-full">{item.name}</p>
-            <p class={cn("text-sm font-medium transition-all duration-500", itemStatus + '-score')}>{participant.score.toLocaleString('en-US', { maximumFractionDigits: 2})} / {item.cost.toLocaleString('en-US', { maximumFractionDigits: 2})}</p>
-            <Progress value={participant.score/item.cost} max={1} class="h-3 w-auto bg-gray-300 border-gray-300 dark:bg-gray-700 dark:border-gray-700 border-2" subClass={cn("rounded-full duration-500", itemStatus + '-progress')} />
-        </div>
-        <div class="border-l flex-shrink-0 border-gray-400 w-[90px] flex justify-center items-center p-3">
-            <p class={cn("font-medium text-sm transition-all duration-500", itemStatus + '-text')}>{itemStatusText}</p>
-        </div>
-    </div>
+	<div class="flex bg-gray-50 dark:bg-gray-900">
+		<Dialog.Root>
+			<Dialog.Trigger class="w-full min-w-0 flex-grow p-3 text-left sm:mr-4">
+				<p class="w-full overflow-hidden text-ellipsis text-nowrap text-base font-medium">
+					{item.name}
+				</p>
+				<p class={cn('text-sm font-medium transition-all duration-500', itemStatus + '-score')}>
+					{participant.score.toLocaleString('en-US', { maximumFractionDigits: 2 })} / {item.cost.toLocaleString(
+						'en-US',
+						{ maximumFractionDigits: 2 }
+					)}
+				</p>
+				<Progress
+					value={participant.score / item.cost}
+					max={1}
+					class="h-3 w-auto border-2 border-gray-300 bg-gray-300 dark:border-gray-700 dark:bg-gray-700"
+					subClass={cn('rounded-full duration-500', itemStatus + '-progress')}
+				/>
+			</Dialog.Trigger>
+			<Dialog.Content>
+				<Dialog.Header>
+					<Dialog.Title>{item.name}</Dialog.Title>
+					<Dialog.Description>
+						{item.description}
+					</Dialog.Description>
+				</Dialog.Header>
+				<img src={pocketbase.files.getUrl(item, item.image)} alt="Preview image for {item.name}" />
+			</Dialog.Content>
+		</Dialog.Root>
+		<div
+			class="flex w-[90px] flex-shrink-0 flex-col items-center justify-center border-l border-gray-400 p-3 sm:w-[122px] sm:px-4"
+		>
+			<p class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}>
+				{itemStatusText}
+			</p>
+			{#if $currentUser}
+				{#if itemStatus === 'finished'}
+					<AlertDialog.Root>
+						<AlertDialog.Trigger><Button class="h-8 w-16 px-2">Claim</Button></AlertDialog.Trigger>
+						<AlertDialog.Content>
+							<AlertDialog.Header>
+								<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+								<AlertDialog.Description>
+									This action cannot be undone. Well it actually can be there's just no button for
+									it yet.
+								</AlertDialog.Description>
+							</AlertDialog.Header>
+							<AlertDialog.Footer>
+								<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+								<AlertDialog.Action on:click={markItemAsClaimed}>Continue</AlertDialog.Action>
+							</AlertDialog.Footer>
+						</AlertDialog.Content>
+					</AlertDialog.Root>
+				{:else if itemStatus === 'claimed'}
+					<Button class="h-8 w-16 px-2" disabled>Claimed</Button>
+				{:else}
+					<Button class="h-8 w-16 px-2" disabled>Not yet</Button>
+				{/if}
+			{/if}
+		</div>
+	</div>
 </div>
 
 <style lang="postcss">
-    .in-progress-score {
-        @apply text-cprimary;
-    }
-    .finished-score {
-        @apply text-yellow-500;
-    }
-    .claimed-score {
-        @apply text-gray-500;
-    }
-    .in-progress-text {
-        @apply text-gray-500 dark:text-gray-400;
-    }
-    .claimed-text {
-        @apply text-cprimary;
-    }
+	.in-progress-score {
+		@apply text-cprimary;
+	}
+	.finished-score {
+		@apply text-yellow-500;
+	}
+	.claimed-score {
+		@apply text-gray-500;
+	}
+	.in-progress-text {
+		@apply text-gray-500 dark:text-gray-400;
+	}
+	.claimed-text {
+		@apply text-cprimary;
+	}
 </style>

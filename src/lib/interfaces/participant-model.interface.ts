@@ -11,6 +11,8 @@ export interface ParticipantModel {
 	name: string;
 	score: number;
 	updated: Date;
+}
+export interface ParticipantGroupModel extends ParticipantModel {
 	expand: {
 		group: GroupModel;
 	};

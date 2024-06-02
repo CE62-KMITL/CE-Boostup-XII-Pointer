@@ -13,5 +13,5 @@ package-lock.json
 yarn.lock
 
 /pocketbase
-/src/lib/components
+/src/lib/components/ui
 /src/lib/utils.ts

@@ -11,10 +11,10 @@
 	import { base } from '$app/paths';
 	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import * as Avatar from '$lib/components/ui/avatar';
-	import { Button } from '$lib/components/ui/button/index';
+	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import { Input } from '$lib/components/ui/input/index';
-	import { Label } from '$lib/components/ui/label/index';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import * as Sheet from '$lib/components/ui/sheet';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
@@ -132,18 +132,18 @@
 			</Sheet.Description>
 		</Sheet.Header>
 		<div class="grid gap-4 py-4">
-			<div class="grid grid-cols-4 items-center gap-4">
+			<div class="grid grid-cols-5 items-center gap-4">
 				<Label for="name" class="text-right">Name</Label>
-				<Input id="name" bind:value={updateUserName} class="col-span-3" />
+				<Input id="name" bind:value={updateUserName} class="col-span-4" />
 			</div>
-			<div class="grid grid-cols-4 items-center gap-4">
+			<div class="grid grid-cols-5 items-center gap-4">
 				<Label for="avatar" class="text-right">Avatar</Label>
 				<input
 					id="avatar"
 					bind:files={updateUserAvatar}
 					type="file"
 					accept="image/jpeg,image/png,image/svg+xml,image/gif,image/webp,image/avif"
-					class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+					class="col-span-4 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 				/>
 			</div>
 		</div>
@@ -156,13 +156,11 @@
 </Sheet.Root>
 
 <nav class="mx-5 mb-6 mt-6 flex justify-between space-x-4">
-	<a href={base || '/'}>
-		<div class="w-full min-w-0 flex-grow">
-			<h1 class="text-2xl font-bold">Pointer</h1>
-			<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
-				เว็บเก็บคะแนน CE Boost Up 12
-			</h2>
-		</div>
+	<a href={base || '/'} class="w-full min-w-0">
+		<h1 class="text-2xl font-bold">Pointer</h1>
+		<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
+			เว็บเก็บคะแนน CE Boost Up 12
+		</h2>
 	</a>
 	<div class="flex flex-shrink-0 items-center space-x-4">
 		<DropdownMenu.Root>
