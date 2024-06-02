@@ -10,7 +10,7 @@
 </script>
 
 <AvatarPrimitive.Fallback
-	class={cn("flex h-full w-full items-center justify-center rounded-full bg-muted", className)}
+	class={cn("flex h-full w-full items-center justify-center rounded-full bg-muted text-2xl font-semibold opacity-75", className)}
 	{...$$restProps}
 >
 	<slot />

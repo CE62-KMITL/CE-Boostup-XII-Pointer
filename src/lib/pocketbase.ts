@@ -10,18 +10,18 @@ import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = browser
-	? readable<UserAuthModel | undefined>(
-			pocketbase.authStore.model as UserAuthModel | undefined,
+	? readable<UserAuthModel | null>(
+			pocketbase.authStore.model as UserAuthModel | null,
 			function start(set) {
 				const unsubscribe = pocketbase.authStore.onChange((): void => {
-					set(pocketbase.authStore.model as UserAuthModel | undefined);
+					set(pocketbase.authStore.model as UserAuthModel | null);
 				});
 				return function stop(): void {
 					unsubscribe();
 				};
 			}
 		)
-	: readable<UserAuthModel | undefined>(undefined);
+	: readable<UserAuthModel | null>(null);
 
 async function refresh(): Promise<void> {
 	try {

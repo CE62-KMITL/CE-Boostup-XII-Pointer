@@ -4,11 +4,12 @@ export const getInitial = (name: string): string => {
 	for (const match of initialsMatch) {
 		initials += match[1];
 	}
+	initials = initials.toUpperCase();
 	if (initials.length > 2) {
 		initials = initials.slice(0, 2);
 	}
-	if (initials.length == 0) {
+	if (initials.length <= 1) {
 		initials = name.slice(0, 2);
 	}
-	return initials.toUpperCase();
+	return initials;
 };

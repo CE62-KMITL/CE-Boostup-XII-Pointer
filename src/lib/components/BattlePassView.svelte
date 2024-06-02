@@ -15,10 +15,10 @@
     export let participant: ParticipantModel | undefined;
     let items: ItemModel[] | undefined = undefined;
 
-    let unsubscribes: (() => void)[] = [];
+    const unsubscribes: (() => void)[] = [];
 
     onMount(async () => {
-       items = (await pocketbase.collection('items').getFullList({ sort: 'cost' })) as ItemModel[];
+       items = await pocketbase.collection('items').getFullList<ItemModel>({ sort: 'cost' });
        const unsubscribe = await pocketbase.collection('items').subscribe<ItemModel>(
            '*',
            ({ action, record }) => {
@@ -50,7 +50,7 @@
 
 <div class={className}>
     {#if participant === undefined || items === undefined}
-        <Skeleton class="h-5 my-2 w-40 mt-6" />
+        <Skeleton class="h-5 mb-4 w-40 mt-6" />
         {#each Array(5) as _}
             <Skeleton class="h-20 mt-2" />
         {/each}

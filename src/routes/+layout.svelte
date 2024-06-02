@@ -7,6 +7,8 @@
 
 	import '../app.css';
 
+	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
 	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button/index';
@@ -17,7 +19,6 @@
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { getInitial } from '$lib/get-initial';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
-	import { browser } from '$app/environment';
 
 	let innerWidth = 0;
 
@@ -155,12 +156,14 @@
 </Sheet.Root>
 
 <nav class="mx-5 mb-6 mt-6 flex justify-between space-x-4">
-	<div class="w-full min-w-0 flex-grow">
-		<h1 class="text-2xl font-bold">Pointer</h1>
-		<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
-			เว็บเก็บคะแนน CE Boost Up 12
-		</h2>
-	</div>
+	<a href={base || '/'}>
+		<div class="w-full min-w-0 flex-grow">
+			<h1 class="text-2xl font-bold">Pointer</h1>
+			<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
+				เว็บเก็บคะแนน CE Boost Up 12
+			</h2>
+		</div>
+	</a>
 	<div class="flex flex-shrink-0 items-center space-x-4">
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger asChild let:builder>
@@ -187,8 +190,8 @@
 							alt="Avatar of {$currentUser.name}"
 						/>
 						<Avatar.Fallback>{getInitial($currentUser.name)}</Avatar.Fallback>
-					</Avatar.Root></DropdownMenu.Trigger
-				>
+					</Avatar.Root>
+				</DropdownMenu.Trigger>
 				<DropdownMenu.Content>
 					<DropdownMenu.Group>
 						<DropdownMenu.Label>My Account</DropdownMenu.Label>
