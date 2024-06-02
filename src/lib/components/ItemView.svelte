@@ -44,8 +44,8 @@
 <div class={className}>
 	<div class="flex bg-gray-50 dark:bg-gray-900">
 		<Dialog.Root>
-			<Dialog.Trigger class="w-full min-w-0 flex-grow p-3 text-left sm:mr-4">
-				<p class="w-full overflow-hidden text-ellipsis text-nowrap text-base font-medium">
+			<Dialog.Trigger class="w-full min-w-0 flex-grow p-3 pt-2 text-left sm:mr-4">
+				<p class="w-full overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-medium">
 					{item.name}
 				</p>
 				<p class={cn('text-sm font-medium transition-all duration-500', itemStatus + '-score')}>

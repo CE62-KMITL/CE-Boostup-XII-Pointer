@@ -88,7 +88,7 @@
 					<Avatar.Fallback>{getInitial(group.name)}</Avatar.Fallback>
 				</Avatar.Root>
 				<div class="w-0 flex-grow">
-					<p class="overflow-hidden text-ellipsis text-nowrap text-base font-bold">
+					<p class="overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-bold">
 						สวัสดี{participant.name}
 					</p>
 					<p
@@ -161,7 +161,7 @@
 									/>
 									<Label
 										for={`checkbox-${participant.id}`}
-										class="w-0 flex-grow overflow-hidden text-ellipsis text-nowrap"
+										class="w-0 flex-grow overflow-hidden text-ellipsis text-nowrap py-1"
 										>{participant.name} ({participant.fullName})</Label
 									>
 								</div>
