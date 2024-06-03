@@ -8,7 +8,6 @@
 	import { participantSchema } from '$lib/schemas/participant.schema';
 	import * as Select from '$lib/components/ui/select';
 	import type { GroupModel } from '$lib/interfaces/group-model.interface';
-	import { onDestroy, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { createEventDispatcher } from 'svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
@@ -17,38 +16,9 @@
 	let className: string = '';
 	export { className as class };
 	export let id: string;
+	export let groups: GroupModel[] | undefined;
 
 	const dispatch = createEventDispatcher();
-	let groups: GroupModel[] | undefined = undefined;
-
-	const unsubscribes: (() => void)[] = [];
-
-	onMount(async () => {
-		groups = await pocketbase.collection('groups').getFullList<GroupModel>();
-		const unsubscribe = await pocketbase
-			.collection('groups')
-			.subscribe<GroupModel>('*', ({ action, record }) => {
-				switch (action) {
-					case 'create':
-						groups?.push(record);
-						break;
-					case 'update':
-						const index = groups?.findIndex((group) => group.id === record.id);
-						if (index !== undefined && groups && index !== -1) {
-							groups[index] = record;
-						}
-						break;
-					case 'delete':
-						groups = groups?.filter((group) => group.id !== record.id);
-						break;
-				}
-			});
-		unsubscribes.push(unsubscribe);
-	});
-
-	onDestroy(() => {
-		unsubscribes.forEach((unsubscribe) => unsubscribe());
-	});
 
 	let group = '';
 

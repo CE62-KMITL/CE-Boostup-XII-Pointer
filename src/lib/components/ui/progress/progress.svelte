@@ -24,12 +24,12 @@
 
 <style lang="postcss">
 	.in-progress-progress {
-        @apply bg-cprimary;
+        @apply bg-red-400 dark:bg-red-600;
     }
     .finished-progress {
-        @apply bg-yellow-500;
+        @apply bg-csecondary;
     }
     .claimed-progress {
-        @apply bg-gray-500;
+        @apply bg-green-600;
     }
 </style>

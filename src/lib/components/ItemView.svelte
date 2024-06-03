@@ -55,6 +55,7 @@
 					)}
 				</p>
 				<Progress
+					aria-label="Progress"
 					value={participant.score / item.cost}
 					max={1}
 					class="h-3 w-auto border-2 border-gray-300 bg-gray-300 dark:border-gray-700 dark:bg-gray-700"
@@ -74,13 +75,13 @@
 		<div
 			class="flex w-[90px] flex-shrink-0 flex-col items-center justify-center border-l border-gray-400 p-3 sm:w-[122px] sm:px-4"
 		>
-			<p class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}>
-				{itemStatusText}
-			</p>
 			{#if $currentUser}
 				{#if itemStatus === 'finished'}
 					<AlertDialog.Root>
-						<AlertDialog.Trigger><Button class="h-8 w-16 px-2">Claim</Button></AlertDialog.Trigger>
+						<AlertDialog.Trigger
+							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs	">รับของ</Button
+							></AlertDialog.Trigger
+						>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
 								<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
@@ -95,11 +96,19 @@
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
-				{:else if itemStatus === 'claimed'}
-					<Button class="h-8 w-16 px-2" disabled>Claimed</Button>
+				{:else if itemStatus === 'in-progress'}
+					<Button class="h-8 w-[4.5rem] px-2 text-xs" disabled>ยังไม่สำเร็จ</Button>
 				{:else}
-					<Button class="h-8 w-16 px-2" disabled>Not yet</Button>
+					<p
+						class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}
+					>
+						{itemStatusText}
+					</p>
 				{/if}
+			{:else}
+				<p class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}>
+					{itemStatusText}
+				</p>
 			{/if}
 		</div>
 	</div>
@@ -107,18 +116,21 @@
 
 <style lang="postcss">
 	.in-progress-score {
-		@apply text-cprimary;
+		@apply text-red-400 dark:text-red-500;
 	}
 	.finished-score {
-		@apply text-yellow-500;
+		@apply text-csecondary;
 	}
 	.claimed-score {
-		@apply text-gray-500;
+		@apply text-green-600;
 	}
 	.in-progress-text {
 		@apply text-gray-500 dark:text-gray-400;
 	}
+	.finished-text {
+		@apply text-csecondary;
+	}
 	.claimed-text {
-		@apply text-cprimary;
+		@apply text-green-600;
 	}
 </style>

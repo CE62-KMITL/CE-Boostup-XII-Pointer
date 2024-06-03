@@ -182,7 +182,7 @@
 		{#if $currentUser}
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
-					><Avatar.Root class="h-12 w-12">
+					><Avatar.Root class="h-11 w-11">
 						<Avatar.Image
 							src={pocketbase.files.getUrl($currentUser, $currentUser.avatar, { thumb: '128x128' })}
 							alt="Avatar of {$currentUser.name}"
@@ -200,7 +200,7 @@
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<Button on:click={login} variant="outline">Staff</Button>
+			<Button on:click={login} variant="outline" class="h-11 w-11 p-0.5">Staff</Button>
 		{/if}
 	</div>
 </nav>
