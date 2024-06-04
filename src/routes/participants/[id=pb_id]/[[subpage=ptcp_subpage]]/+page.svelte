@@ -1,31 +1,29 @@
 <script lang="ts">
 	// @hmr:keep-all
 
+	import { TriangleAlert } from 'lucide-svelte';
+	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import { onDestroy, onMount } from 'svelte';
+	import { quartOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 
+	import { browser } from '$app/environment';
+	import { replaceState } from '$app/navigation';
+	import { page } from '$app/stores';
+	import AddScorePage from '$lib/components/AddScorePage.svelte';
 	import BattlePassView from '$lib/components/BattlePassView.svelte';
 	import GroupView from '$lib/components/GroupView.svelte';
+	import ParticipantCreatePage from '$lib/components/ParticipantCreatePage.svelte';
 	import ParticipantView from '$lib/components/ParticipantView.svelte';
+	import StaffMenu from '$lib/components/StaffMenu.svelte';
+	import SubtractScorePage from '$lib/components/SubtractScorePage.svelte';
+	import TransactionPage from '$lib/components/TransactionPage.svelte';
+	import type { ItemModel } from '$lib/interfaces/ItemModel.interface.js';
 	import type { GroupModel, GroupParticipantModel } from '$lib/interfaces/group-model.interface.js';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
 	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface.js';
-	import { pocketbase, currentUser } from '$lib/pocketbase';
-	import ParticipantCreatePage from '$lib/components/ParticipantCreatePage.svelte';
-	import { TriangleAlert } from 'lucide-svelte';
-	import type { ItemModel } from '$lib/interfaces/ItemModel.interface.js';
-	import StaffMenu from '$lib/components/StaffMenu.svelte';
-	import { writable, type Writable } from 'svelte/store';
-	import AddScorePage from '$lib/components/AddScorePage.svelte';
-	import SubtractScorePage from '$lib/components/SubtractScorePage.svelte';
-	import TransactionPage from '$lib/components/TransactionPage.svelte';
-	import { fly } from 'svelte/transition';
-	import { cubicOut, quartOut, quintOut } from 'svelte/easing';
-	import type { RecordSubscription, SendOptions } from 'pocketbase';
-	import { page } from '$app/stores';
-	import { pushState, replaceState } from '$app/navigation';
-	import { browser } from '$app/environment';
 	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface.js';
-	import TransactionItem from '$lib/components/TransactionItem.svelte';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
 
 	export let data;
 
@@ -51,7 +49,7 @@
 		id: string,
 		callback: (data: RecordSubscription<T>) => void,
 		options?: SendOptions
-	) {
+	): Promise<void> {
 		const unsubscribe = await pocketbase.collection(collection).subscribe<T>(id, callback, options);
 		unsubscribes.push(unsubscribe);
 	}
@@ -64,9 +62,7 @@
 		reactiveFirstRun = false;
 	}
 
-	let groupParticipantsFetched = false;
-
-	async function init(firstRunOnly: boolean = false) {
+	async function init(firstRunOnly: boolean = false): Promise<void> {
 		if ($currentUser === undefined) {
 			return;
 		}
@@ -103,7 +99,6 @@
 					group = await pocketbase.collection('groups').getOne<GroupParticipantModel>(group.id, {
 						expand: 'participants_via_group'
 					});
-					groupParticipantsFetched = true;
 					subscribe<GroupParticipantModel>(
 						'groups',
 						group.id,
@@ -151,7 +146,7 @@
 								case 'create':
 									transactions = transactions ? [record, ...transactions] : [record];
 									break;
-								case 'update':
+								case 'update': {
 									const index = transactions?.findIndex(
 										(transaction) => transaction.id === record.id
 									);
@@ -159,6 +154,7 @@
 										transactions[index] = record;
 									}
 									break;
+								}
 								case 'delete':
 									transactions = transactions?.filter(
 										(transaction) => transaction.id !== record.id
@@ -196,12 +192,13 @@
 							case 'create':
 								groups = groups ? [...groups, record] : [record];
 								break;
-							case 'update':
+							case 'update': {
 								const index = groups?.findIndex((group) => group.id === record.id);
 								if (index !== undefined && groups && index !== -1) {
 									groups[index] = record;
 								}
 								break;
+							}
 							case 'delete':
 								groups = groups?.filter((group) => group.id !== record.id);
 								break;
@@ -218,12 +215,13 @@
 				case 'create':
 					items = items ? [...items, record] : [record];
 					break;
-				case 'update':
+				case 'update': {
 					const index = items?.findIndex((item) => item.id === record.id);
 					if (index !== undefined && items && index !== -1) {
 						items[index] = record;
 					}
 					break;
+				}
 				case 'delete':
 					items = items?.filter((item) => item.id !== record.id);
 					break;

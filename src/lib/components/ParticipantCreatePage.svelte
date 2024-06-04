@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { createForm } from 'felte';
-	import { pocketbase } from '$lib/pocketbase';
-	import { Input } from '$lib/components/ui/input';
-	import { Button } from '$lib/components/ui/button';
-	import { Label } from '$lib/components/ui/label';
 	import { validator } from '@felte/validator-zod';
-	import { participantSchema } from '$lib/schemas/participant.schema';
-	import * as Select from '$lib/components/ui/select';
-	import type { GroupModel } from '$lib/interfaces/group-model.interface';
-	import { toast } from 'svelte-sonner';
+	import { createForm } from 'felte';
 	import { createEventDispatcher } from 'svelte';
+	import { toast } from 'svelte-sonner';
+
 	import * as Avatar from '$lib/components/ui/avatar';
+	import { Button } from '$lib/components/ui/button';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select';
 	import { getInitial } from '$lib/get-initial';
+	import type { GroupModel } from '$lib/interfaces/group-model.interface';
+	import { pocketbase } from '$lib/pocketbase';
+	import { participantSchema } from '$lib/schemas/participant.schema';
 
 	let className: string = '';
 	export { className as class };
@@ -50,7 +51,7 @@
 			});
 		},
 		extend: [validator({ schema: participantSchema })],
-		validate: (_) => {
+		validate: () => {
 			if (!group) {
 				return {
 					group: ['กรุณาเลือกบ้าน']

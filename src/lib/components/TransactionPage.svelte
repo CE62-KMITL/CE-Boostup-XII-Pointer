@@ -1,17 +1,15 @@
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
-	import { Button } from '$lib/components/ui/button';
 	import { ChevronLeft } from 'lucide-svelte';
-	import * as Tabs from '$lib/components/ui/tabs';
-	import { pushState } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { swipe } from 'svelte-gestures';
-	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface';
-	import TransactionItem from '$lib/components/TransactionItem.svelte';
-	import { fade, fly } from 'svelte/transition';
-	import { quadOut, quintOut } from 'svelte/easing';
 	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
+	import { swipe } from 'svelte-gestures';
+
+	import { pushState } from '$app/navigation';
+	import TransactionItem from '$lib/components/TransactionItem.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import * as Tabs from '$lib/components/ui/tabs';
 	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
+	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface';
 
 	const animationDuration = 400;
 

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
-	import { pocketbase } from '$lib/pocketbase';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Skeleton } from '$lib/components/ui/skeleton';
+	import { format } from '$lib/format-number';
 	import { getInitial } from '$lib/get-initial.js';
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
-	import { format } from '$lib/format-number';
+	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import { pocketbase } from '$lib/pocketbase';
 
 	let className: string = '';
 	export { className as class };

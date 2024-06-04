@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
+
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
+	import { Button } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Progress } from '$lib/components/ui/progress';
+	import { format } from '$lib/format-number';
 	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
 	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
-	import { Progress } from '$lib/components/ui/progress';
-	import { cn } from '$lib/utils';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { pocketbase, currentUser } from '$lib/pocketbase';
-	import { Button } from '$lib/components/ui/button';
-	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { toast } from 'svelte-sonner';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
-	import { format } from '$lib/format-number';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
+	import { cn } from '$lib/utils';
 
 	let className: string = '';
 	export { className as class };
@@ -28,7 +29,7 @@
 				? 'สำเร็จแล้ว'
 				: 'ยังไม่สำเร็จ';
 
-	async function markItemAsClaimed() {
+	async function markItemAsClaimed(): Promise<void> {
 		const markItemAsClaimedPromise = pocketbase.collection('participants').update(participant.id, {
 			'itemsUnlocked+': item.id
 		});

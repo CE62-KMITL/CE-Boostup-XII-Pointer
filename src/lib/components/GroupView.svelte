@@ -1,38 +1,13 @@
 <script lang="ts">
-	import type { GroupModel } from '$lib/interfaces/group-model.interface';
 	import banner from '$lib/assets/banner/banner.avif';
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import { pocketbase } from '$lib/pocketbase';
-	import { toast } from 'svelte-sonner';
 	import { format } from '$lib/format-number';
+	import type { GroupModel } from '$lib/interfaces/group-model.interface';
 
 	let className: string = '';
 	export { className as class };
 	export let group: GroupModel | undefined;
 	export let groupScore: number | undefined;
-
-	let decrement: number = 0;
-
-	async function decrementScore() {
-		if (!group || !decrement) {
-			toast.warning('Score not updated', {
-				description: 'No changes to apply'
-			});
-			return;
-		}
-		const decrementPromise = pocketbase.collection('groups').update(group.id, {
-			'scoreOffset-': decrement
-		});
-		decrement = 0;
-		toast.promise(decrementPromise, {
-			loading: 'Updating score...',
-			success: 'Score updated!',
-			error: (err) => {
-				console.error(err);
-				return `An error occured during score update: ${err instanceof Error ? err.message : 'Unknown error'}`;
-			}
-		});
-	}
 </script>
 
 <div class={className}>

@@ -1,22 +1,21 @@
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
-	import { Button } from '$lib/components/ui/button';
 	import { ChevronLeft, Info } from 'lucide-svelte';
-	import { Label } from '$lib/components/ui/label';
-	import { Input } from '$lib/components/ui/input';
+	import { swipe } from 'svelte-gestures';
+	import { toast } from 'svelte-sonner';
+
+	import { pushState } from '$app/navigation';
+	import { Button } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { Input } from '$lib/components/ui/input';
+	import { Label } from '$lib/components/ui/label';
 	import * as RadioGroup from '$lib/components/ui/radio-group';
+	import { format } from '$lib/format-number';
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
 	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
-	import * as Dialog from '$lib/components/ui/dialog';
-	import { toast } from 'svelte-sonner';
+	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 	import { cn } from '$lib/utils';
-	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
-	import { format } from '$lib/format-number';
-	import { pushState } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { swipe } from 'svelte-gestures';
 
 	let className: string = '';
 	export { className as class };
@@ -38,7 +37,7 @@
 		}
 	}
 
-	async function updateScore() {
+	async function updateScore(): Promise<void> {
 		if (selectedParticipantIds.length === 0 || !score) {
 			toast.warning('Score not updated', {
 				description: 'No changes to apply'

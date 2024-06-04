@@ -1,10 +1,12 @@
 <script lang="ts">
-	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
-	import { Skeleton } from '$lib/components/ui/skeleton';
-	import ItemView from './ItemView.svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
+
+	import ItemView from './ItemView.svelte';
+
+	import { Skeleton } from '$lib/components/ui/skeleton';
+	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
+	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
 
 	const animationDuration = 400;
 

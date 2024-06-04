@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ChevronRight } from 'lucide-svelte';
-	import type { Writable } from 'svelte/store';
 	import { swipe } from 'svelte-gestures';
+
 	import { pushState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getUrlWithoutSubpage } from '$lib/get-url-without-subpage';

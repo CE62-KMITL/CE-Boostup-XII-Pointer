@@ -1,17 +1,16 @@
 <script lang="ts">
-	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
-	import type { Writable } from 'svelte/store';
-	import { Label } from '$lib/components/ui/label';
+	import { ChevronLeft, Info } from 'lucide-svelte';
+	import { swipe } from 'svelte-gestures';
+	import { toast } from 'svelte-sonner';
+
+	import { pushState } from '$app/navigation';
+	import { Button } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
-	import { Button } from '$lib/components/ui/button';
-	import { ChevronLeft, Info } from 'lucide-svelte';
-	import { toast } from 'svelte-sonner';
-	import { pocketbase, currentUser } from '$lib/pocketbase';
+	import { Label } from '$lib/components/ui/label';
+	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
-	import { pushState } from '$app/navigation';
-	import { page } from '$app/stores';
-	import { swipe } from 'svelte-gestures';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
 
 	let className: string = '';
 	export { className as class };

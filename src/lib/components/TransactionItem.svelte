@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { ArrowDown, ArrowUp, CircleHelp, Gift } from 'lucide-svelte';
+
 	import { format } from '$lib/format-number';
 	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface';
-	import { ArrowDown, ArrowUp, CircleHelp, Gift } from 'lucide-svelte';
 
 	let className: string = '';
 	export { className as class };
