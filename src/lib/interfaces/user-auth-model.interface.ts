@@ -2,12 +2,13 @@ export interface UserAuthModel {
 	avatar: string;
 	collectionId: string;
 	collectionName: string;
-	created: Date;
+	created: string;
 	email: string;
 	emailVisibility: boolean;
 	id: string;
 	name: string;
-	updated: Date;
+	nickname: string;
+	updated: string;
 	username: string;
 	verified: boolean;
 }

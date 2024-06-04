@@ -6,22 +6,23 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import { ChevronLeft, Info } from 'lucide-svelte';
-	import * as Avatar from '$lib/components/ui/avatar';
 	import { toast } from 'svelte-sonner';
-	import { pocketbase } from '$lib/pocketbase';
-	import { getInitial } from '$lib/get-initial';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
+	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
+	import { pushState } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { swipe } from 'svelte-gestures';
 
 	let className: string = '';
 	export { className as class };
-	export let subpage: Writable<'add-score' | 'subtract-score' | 'transaction' | undefined>;
-	export let group: GroupParticipantModel | undefined;
+	export let group: GroupParticipantModel;
 
 	let score: number | undefined = undefined;
 
 	$: score = score === undefined ? undefined : score >= 0 ? score : 0;
 
 	async function updateScore() {
-		if (!group || !score) {
+		if (!score) {
 			toast.warning('Score not updated', {
 				description: 'No changes to apply'
 			});
@@ -30,27 +31,43 @@
 		const decrementPromise = pocketbase.collection('groups').update(group.id, {
 			'scoreOffset-': score
 		});
-		score = 0;
 		toast.promise(decrementPromise, {
 			loading: 'Updating score...',
 			success: () => {
-				$subpage = undefined;
+				const user = $currentUser as UserAuthModel;
+				pocketbase.collection('transactions').create({
+					user: user.id,
+					targetType: 'group',
+					group: group.id,
+					action: 'subtract',
+					score: score
+				});
+				score = 0;
+				pushState('.', { subpage: undefined });
 				return 'Score updated!';
 			},
 			error: (err) => {
 				console.error(err);
-				$subpage = undefined;
+				score = 0;
+				pushState('.', { subpage: undefined });
 				return `An error occured during score update: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
 		});
 	}
 </script>
 
-<div class={className}>
+<div
+	class={className}
+	use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+	on:swipe={(event) => {
+		if (event.detail.direction !== 'right') return;
+		pushState('.', { subpage: undefined });
+	}}
+>
 	<div class="flex items-center justify-between">
 		<Button
 			on:click={() => {
-				$subpage = undefined;
+				pushState('.', { subpage: undefined });
 			}}
 			variant="ghost"
 			class="flex-shrink-0"
@@ -62,7 +79,7 @@
 		<h3 class="flex-shrink-0 text-lg font-bold">หักคะแนนบ้าน</h3>
 		<div class="w-[87.63px]" />
 	</div>
-	<div class="mx-5 my-4">
+	<form on:submit|preventDefault={updateScore} class="mx-5 my-4">
 		<Label class="flex items-center text-lg font-bold"
 			>กรอกคะแนน<Dialog.Root>
 				<Dialog.Trigger class="ml-2"><Info class="h-5 w-5" /></Dialog.Trigger>
@@ -84,30 +101,9 @@
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"
+			autofocus
 			bind:value={score}
 		/>
-		<!-- <div class="ml-4">
-			{#if group}
-				<div class="my-4 flex items-center space-x-4">
-					<Avatar.Root class="h-14 w-14">
-						<Avatar.Image
-							src={pocketbase.files.getUrl(group, group.avatar, {
-								thumb: '128x128'
-							})}
-							alt="Avatar of {group.name}"
-						/>
-						<Avatar.Fallback>{getInitial(group.name)}</Avatar.Fallback>
-					</Avatar.Root>
-					<div>
-						<p class="overflow-hidden text-ellipsis text-nowrap text-lg font-bold">
-							บ้าน {group.name}
-						</p>
-					</div>
-				</div>
-			{/if}
-		</div> -->
-		<Button type="submit" on:click={updateScore} class="mt-8 w-full bg-cprimary hover:bg-cprimary"
-			>บันทึก</Button
-		>
-	</div>
+		<Button type="submit" class="mt-8 w-full bg-cprimary hover:bg-cprimary">บันทึก</Button>
+	</form>
 </div>

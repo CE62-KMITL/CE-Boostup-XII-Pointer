@@ -2,10 +2,10 @@ export interface ItemModel {
 	collectionId: string;
 	collectionName: string;
 	cost: number;
-	created: Date;
+	created: string;
 	description: string;
 	id: string;
 	image: string;
 	name: string;
-	updated: Date;
+	updated: string;
 }

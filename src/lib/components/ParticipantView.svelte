@@ -5,6 +5,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { getInitial } from '$lib/get-initial.js';
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
+	import { format } from '$lib/format-number';
 
 	let className: string = '';
 	export { className as class };
@@ -54,7 +55,7 @@
 				<p class="text-end font-medium text-gray-600 dark:text-gray-400">คะแนน</p>
 				<div class="h-10 w-32 rounded-lg bg-cprimary text-center">
 					<p class="p-2 text-xl font-bold text-white dark:text-black">
-						{participant.score.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+						{format(participant.score)}
 					</p>
 				</div>
 			</div>

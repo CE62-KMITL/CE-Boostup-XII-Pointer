@@ -1,18 +1,30 @@
 <script lang="ts">
 	import { ChevronRight } from 'lucide-svelte';
 	import type { Writable } from 'svelte/store';
+	import { swipe } from 'svelte-gestures';
+	import { pushState } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { getUrlWithoutSubpage } from '$lib/get-url-without-subpage';
 
 	let className: string = '';
 	export { className as class };
-	export let subpage: Writable<'add-score' | 'subtract-score' | 'transaction' | undefined>;
 </script>
 
 <div class={className}>
 	<p class="text-lg font-bold">Staff Zone</p>
 	<div class="mt-1 drop-shadow-lg">
 		<button
+			use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+			on:swipe={(event) => {
+				if (event.detail.direction !== 'left') return;
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/add-score`, {
+					subpage: 'add-score'
+				});
+			}}
 			on:click={() => {
-				$subpage = 'add-score';
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/add-score`, {
+					subpage: 'add-score'
+				});
 			}}
 			class="link-btn brounded-b-none rounded-t-lg"
 		>
@@ -20,14 +32,32 @@
 			<ChevronRight class="text-gray-400" />
 		</button>
 		<button
+			use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+			on:swipe={(event) => {
+				if (event.detail.direction !== 'left') return;
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/subtract-score`, {
+					subpage: 'subtract-score'
+				});
+			}}
 			on:click={() => {
-				$subpage = 'subtract-score';
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/subtract-score`, {
+					subpage: 'subtract-score'
+				});
 			}}
 			class="link-btn rounded-none">หักคะแนนบ้าน<ChevronRight class="text-gray-400" /></button
 		>
 		<button
+			use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+			on:swipe={(event) => {
+				if (event.detail.direction !== 'left') return;
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/transaction`, {
+					subpage: 'transaction'
+				});
+			}}
 			on:click={() => {
-				$subpage = 'transaction';
+				pushState(`${getUrlWithoutSubpage($page.url.pathname)}/transaction`, {
+					subpage: 'transaction'
+				});
 			}}
 			class="link-btn rounded-b-lg rounded-t-none border-b"
 		>

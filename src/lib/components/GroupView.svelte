@@ -4,6 +4,7 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { pocketbase } from '$lib/pocketbase';
 	import { toast } from 'svelte-sonner';
+	import { format } from '$lib/format-number';
 
 	let className: string = '';
 	export { className as class };
@@ -50,7 +51,7 @@
 				></div>
 				<div class="h-full w-auto text-center">
 					<p class="	p-4 text-3xl font-bold">
-						{groupScore.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+						{format(groupScore, 1e7, 1e-6, 3)}
 					</p>
 				</div>
 			</div>

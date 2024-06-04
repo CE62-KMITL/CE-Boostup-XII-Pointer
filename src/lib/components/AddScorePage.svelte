@@ -10,14 +10,18 @@
 	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { toast } from 'svelte-sonner';
-	import { pocketbase } from '$lib/pocketbase';
+	import { pocketbase, currentUser } from '$lib/pocketbase';
 	import { cn } from '$lib/utils';
+	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
+	import { format } from '$lib/format-number';
+	import { pushState } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { swipe } from 'svelte-gestures';
 
 	let className: string = '';
 	export { className as class };
-	export let subpage: Writable<'add-score' | 'subtract-score' | 'transaction' | undefined>;
-	export let participant: ParticipantGroupModel | undefined;
-	export let group: GroupParticipantModel | undefined;
+	export let participant: ParticipantGroupModel;
+	export let group: GroupParticipantModel;
 
 	let scoreMode: 'per-person' | 'total' = 'per-person';
 	let score: number | undefined = undefined;
@@ -45,33 +49,51 @@
 			score = score / selectedParticipantIds.length;
 		}
 		const updateScorePromise = Promise.all(
-			selectedParticipantIds.map(async (id) => {
-				await pocketbase.collection('participants').update(id, {
+			selectedParticipantIds.map((id) => {
+				pocketbase.collection('participants').update(id, {
 					'score+': score
 				});
 			})
 		);
-		score = 0;
 		toast.promise(updateScorePromise, {
 			loading: 'Updating score...',
 			success: () => {
-				$subpage = undefined;
+				const user = $currentUser as UserAuthModel;
+				selectedParticipantIds.map((id) => {
+					pocketbase.collection('transactions').create({
+						user: user.id,
+						targetType: 'participant',
+						participant: id,
+						action: 'add',
+						score: score
+					});
+				});
+				score = 0;
+				pushState('.', { subpage: undefined });
 				return 'Score updated!';
 			},
 			error: (err) => {
 				console.error(err);
-				$subpage = undefined;
+				score = 0;
+				pushState('.', { subpage: undefined });
 				return `An error occured during score update: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
 		});
 	}
 </script>
 
-<div class={className}>
+<div
+	class={className}
+	use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
+	on:swipe={(event) => {
+		if (event.detail.direction !== 'right') return;
+		pushState('.', { subpage: undefined });
+	}}
+>
 	<div class="flex items-center justify-between">
 		<Button
 			on:click={() => {
-				$subpage = undefined;
+				pushState('.', { subpage: undefined });
 			}}
 			variant="ghost"
 			class="flex-shrink-0"
@@ -83,7 +105,7 @@
 		<h3 class="flex-shrink-0 text-lg font-bold">เพิ่มคะแนน</h3>
 		<div class="w-[87.63px]" />
 	</div>
-	<div class="mx-5 my-4">
+	<form on:submit|preventDefault={updateScore} class="mx-5 my-4">
 		<Label class="text-lg font-bold">กรอกคะแนน</Label>
 		<Input
 			class="mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
@@ -92,6 +114,7 @@
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"
+			autofocus
 			bind:value={score}
 		/>
 		<Label class="mt-8 flex items-center text-lg font-bold">
@@ -132,84 +155,78 @@
 		</RadioGroup.Root>
 		<div class="flex justify-between">
 			<Label class="mb-0.5 mt-8 block text-lg font-bold">สมาชิกที่จะให้คะแนน</Label>
-			{#if group && participant}
-				{#if selectedParticipantIds.length === group.expand.participants_via_group.length}
-					<Button
-						variant="ghost"
-						on:click={() => {
-							selectedParticipantIds = [];
-						}}
-						class="mt-6 w-24 p-0 text-base font-medium text-red-400">ยกเลิกทั้งหมด</Button
-					>
-				{:else}
-					<Button
-						variant="ghost"
-						on:click={() => {
-							selectedParticipantIds = group.expand.participants_via_group.map((p) => p.id);
-						}}
-						class="mt-6 w-24 p-0 text-base font-medium text-cprimary">เลือกทั้งหมด</Button
-					>
-				{/if}
+			{#if selectedParticipantIds.length === group.expand.participants_via_group.length}
+				<Button
+					variant="ghost"
+					on:click={() => {
+						selectedParticipantIds = [];
+					}}
+					class="mt-6 w-24 p-0 text-base font-medium text-red-400 hover:text-red-400"
+					>ยกเลิกทั้งหมด</Button
+				>
+			{:else}
+				<Button
+					variant="ghost"
+					on:click={() => {
+						selectedParticipantIds = group.expand.participants_via_group.map((p) => p.id);
+					}}
+					class="mt-6 w-24 p-0 text-base font-medium text-cprimary hover:text-cprimary"
+					>เลือกทั้งหมด</Button
+				>
 			{/if}
 		</div>
-		{#if group && participant}
-			<div class="flex w-full min-w-0 flex-col space-y-2">
-				{#each group.expand.participants_via_group.toSorted((a, b) => {
-					if (a.id === participant.id) return -1;
-					if (b.id === participant.id) return 1;
-					return a.name.localeCompare(b.name, 'en-US');
-				}) as participant}
-					<div
-						class={cn(
-							'flex w-full min-w-0 items-center space-x-2 rounded-sm px-2',
-							selectedParticipantIds.includes(participant.id) ? 'selected' : ''
-						)}
-					>
-						<Checkbox
-							checked={selectedParticipantIds.includes(participant.id)}
-							value={participant.id}
-							id={`checkbox-${participant.id}`}
-							onCheckedChange={(v) => {
-								if (v) {
-									selectedParticipantIds = [...selectedParticipantIds, participant.id];
-								} else {
-									selectedParticipantIds = selectedParticipantIds.filter(
-										(id) => id !== participant.id
-									);
-								}
-							}}
-							class="border-cprimary p-0.5 text-xl data-[state=checked]:bg-[hsl(var(--cprimary))]"
-						/>
-						<div class="flex w-full justify-between">
-							<Label
-								for={`checkbox-${participant.id}`}
-								class="w-0 flex-grow cursor-pointer overflow-hidden text-ellipsis text-nowrap py-1 text-base font-medium"
-								>{participant.name} ({participant.fullName})</Label
-							>
-							<Label
-								for={`checkbox-${participant.id}`}
-								class="ml-2 w-fit flex-shrink-0 py-1 text-base font-medium text-green-600"
-							>
-								{#if selectedParticipantIds.includes(participant.id)}
-									+
-									{#if scoreMode === 'per-person'}
-										{(+(score ?? 0)).toLocaleString('en-US', { maximumFractionDigits: 2 })}
-									{:else}
-										{((score ?? 0) / selectedParticipantIds.length).toLocaleString('en-US', {
-											maximumFractionDigits: 2
-										})}
-									{/if}
+		<div class="flex w-full min-w-0 flex-col space-y-2">
+			{#each group.expand.participants_via_group.toSorted((a, b) => {
+				if (a.id === participant.id) return -1;
+				if (b.id === participant.id) return 1;
+				return a.name.localeCompare(b.name, 'en-US');
+			}) as participant}
+				<div
+					class={cn(
+						'flex w-full min-w-0 items-center space-x-2 rounded-sm px-2 hover:bg-gray-50 hover:dark:bg-gray-900',
+						selectedParticipantIds.includes(participant.id) ? 'selected' : ''
+					)}
+				>
+					<Checkbox
+						checked={selectedParticipantIds.includes(participant.id)}
+						value={participant.id}
+						id={`checkbox-${participant.id}`}
+						onCheckedChange={(v) => {
+							if (v) {
+								selectedParticipantIds = [...selectedParticipantIds, participant.id];
+							} else {
+								selectedParticipantIds = selectedParticipantIds.filter(
+									(id) => id !== participant.id
+								);
+							}
+						}}
+						class="border-cprimary p-0.5 text-xl data-[state=checked]:bg-[hsl(var(--cprimary))]"
+					/>
+					<div class="flex w-full justify-between">
+						<Label
+							for={`checkbox-${participant.id}`}
+							class="w-0 flex-grow cursor-pointer overflow-hidden text-ellipsis text-nowrap py-1 text-base font-medium"
+							>{participant.name} ({participant.fullName})</Label
+						>
+						<Label
+							for={`checkbox-${participant.id}`}
+							class="ml-2 w-fit flex-shrink-0 py-1 text-base font-medium text-green-600"
+						>
+							{#if selectedParticipantIds.includes(participant.id)}
+								+
+								{#if scoreMode === 'per-person'}
+									{format(+(score ?? 0))}
+								{:else}
+									{format((score ?? 0) / selectedParticipantIds.length)}
 								{/if}
-							</Label>
-						</div>
+							{/if}
+						</Label>
 					</div>
-				{/each}
-			</div>
-		{/if}
-		<Button type="submit" on:click={updateScore} class="mt-8 w-full bg-cprimary hover:bg-cprimary"
-			>บันทึก</Button
-		>
-	</div>
+				</div>
+			{/each}
+		</div>
+		<Button type="submit" class="mt-8 w-full bg-cprimary hover:bg-cprimary">บันทึก</Button>
+	</form>
 </div>
 
 <style lang="postcss">

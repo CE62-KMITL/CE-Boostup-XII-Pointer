@@ -6,7 +6,9 @@ declare global {
 		// interface Error {}
 		// interface Locals {}
 		// interface PageData {}
-		// interface PageState {}
+		interface PageState {
+			subpage: 'add-score' | 'subtract-score' | 'transaction' | undefined;
+		}
 		// interface Platform {}
 	}
 }

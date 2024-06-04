@@ -1,5 +1,5 @@
 import PocketBase from 'pocketbase';
-import { readable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { toast } from 'svelte-sonner';
 
 import { type UserAuthModel } from './interfaces/user-auth-model.interface';
@@ -10,18 +10,15 @@ import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = browser
-	? readable<UserAuthModel | null>(
-			pocketbase.authStore.model as UserAuthModel | null,
-			function start(set) {
-				const unsubscribe = pocketbase.authStore.onChange((): void => {
-					set(pocketbase.authStore.model as UserAuthModel | null);
-				});
-				return function stop(): void {
-					unsubscribe();
-				};
-			}
-		)
-	: readable<UserAuthModel | null>(null);
+	? writable<UserAuthModel | null | undefined>(undefined, function start(set) {
+			const unsubscribe = pocketbase.authStore.onChange((): void => {
+				set(pocketbase.authStore.model as UserAuthModel | null);
+			});
+			return function stop(): void {
+				unsubscribe();
+			};
+		})
+	: writable<UserAuthModel | null | undefined>(undefined);
 
 export function logout(): void {
 	pocketbase.collection('users').unsubscribe();
@@ -37,16 +34,20 @@ async function refresh(): Promise<void> {
 	} catch (err) {
 		console.error(err);
 		pocketbase.authStore.clear();
-		toast.warning('Your session has expired', {
-			description: 'Please log in again'
-		});
+		setTimeout(() => {
+			toast.warning('Your session has expired', {
+				description: 'Please log in again'
+			});
+		}, 1000);
 	}
 }
 
 if (browser) {
 	if (pocketbase.authStore.isValid) {
-		refresh();
+		await refresh();
 	} else {
 		pocketbase.authStore.clear();
 	}
 }
+
+currentUser.set(pocketbase.authStore.model as UserAuthModel | null);

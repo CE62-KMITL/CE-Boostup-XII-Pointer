@@ -8,6 +8,8 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { toast } from 'svelte-sonner';
+	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
+	import { format } from '$lib/format-number';
 
 	let className: string = '';
 	export { className as class };
@@ -32,7 +34,17 @@
 		});
 		toast.promise(markItemAsClaimedPromise, {
 			loading: 'Updating data...',
-			success: 'Item marked as claimed!',
+			success: () => {
+				const user = $currentUser as UserAuthModel;
+				pocketbase.collection('transactions').create({
+					user: user.id,
+					targetType: 'participant',
+					participant: participant.id,
+					action: 'reward',
+					item: item.id
+				});
+				return 'Item marked as claimed!';
+			},
 			error: (err) => {
 				console.error(err);
 				return `An error occured during item update: ${err instanceof Error ? err.message : 'Unknown error'}`;
@@ -49,10 +61,7 @@
 					{item.name}
 				</p>
 				<p class={cn('text-sm font-medium transition-all duration-500', itemStatus + '-score')}>
-					{participant.score.toLocaleString('en-US', { maximumFractionDigits: 2 })} / {item.cost.toLocaleString(
-						'en-US',
-						{ maximumFractionDigits: 2 }
-					)}
+					{format(participant.score)} / {format(item.cost)}
 				</p>
 				<Progress
 					aria-label="Progress"
@@ -79,7 +88,8 @@
 				{#if itemStatus === 'finished'}
 					<AlertDialog.Root>
 						<AlertDialog.Trigger
-							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs	">รับของ</Button
+							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs	hover:bg-cprimary	"
+								>รับของ</Button
 							></AlertDialog.Trigger
 						>
 						<AlertDialog.Content>

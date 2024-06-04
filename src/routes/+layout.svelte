@@ -33,18 +33,26 @@
 			if (meta && meta.isNew) {
 				const formData = new FormData();
 
-				if (meta.name) {
-					formData.append('name', meta.name);
-				}
-
-				if (meta.avatarUrl) {
-					const avatarResponse = await fetch(meta.avatarUrl);
-					if (avatarResponse.ok) {
-						formData.append('avatar', await avatarResponse.blob());
-					}
-				}
-
 				try {
+					if (meta.name) {
+						try {
+							formData.append('name', meta.name);
+						} catch (err) {
+							console.error(err);
+						}
+					}
+
+					if (meta.avatarUrl) {
+						try {
+							const avatarResponse = await fetch(meta.avatarUrl);
+							if (avatarResponse.ok) {
+								formData.append('avatar', await avatarResponse.blob());
+							}
+						} catch (err) {
+							console.error(err);
+						}
+					}
+
 					await pocketbase.collection('users').update(data.record.id, formData);
 				} catch (err) {
 					console.error(err);

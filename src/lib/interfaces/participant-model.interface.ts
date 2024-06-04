@@ -3,14 +3,14 @@ import type { GroupModel } from './group-model.interface';
 export interface ParticipantModel {
 	collectionId: string;
 	collectionName: string;
-	created: Date;
+	created: string;
 	fullName: string;
 	group: string;
 	id: string;
 	itemsUnlocked: string[];
 	name: string;
 	score: number;
-	updated: Date;
+	updated: string;
 }
 export interface ParticipantGroupModel extends ParticipantModel {
 	expand: {

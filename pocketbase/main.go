@@ -13,6 +13,7 @@ import (
 )
 
 type Staff struct {
+	NicknameTH      string `json:"nickName_th"`
 	FullNameEN      string `json:"fullName_en"`
 	EmailUniversity string `json:"email_university"`
 }
@@ -49,6 +50,7 @@ func main() {
 		if e.IsNewRecord {
 			if staff, ok := staffMap[e.OAuth2User.Email]; ok {
 				e.Record.SetUsername(strings.ReplaceAll(staff.FullNameEN, " ", "_"))
+				e.Record.Set("nickname", "พี่"+staff.NicknameTH)
 				e.Record.SetEmailVisibility(true)
 
 				if err := app.Dao().SaveRecord(e.Record); err != nil {
