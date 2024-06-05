@@ -7,9 +7,12 @@
 
 	import '../app.css';
 
+	import type { LayoutData } from './$types';
+
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
-	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+	import { page } from '$app/stores';
+	import { PUBLIC_OAUTH_REDIRECT_URL, PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
@@ -20,58 +23,11 @@
 	import { getInitial } from '$lib/get-initial';
 	import { currentUser, pocketbase, logout as pbLogout } from '$lib/pocketbase';
 
+	export let data: LayoutData;
+
 	let innerWidth = 0;
 
 	$: isPhone = !browser || (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
-
-	function login(): void {
-		pocketbase
-			.collection('users')
-			.authWithOAuth2({ provider: 'google' })
-			.then(async (data) => {
-				const meta = data.meta;
-
-				if (meta && meta.isNew) {
-					const formData = new FormData();
-
-					try {
-						if (meta.name) {
-							try {
-								formData.append('name', meta.name);
-							} catch (err) {
-								console.error(err);
-							}
-						}
-
-						if (meta.avatarUrl) {
-							try {
-								const avatarResponse = await fetch(meta.avatarUrl);
-								if (avatarResponse.ok) {
-									formData.append('avatar', await avatarResponse.blob());
-								}
-							} catch (err) {
-								console.error(err);
-							}
-						}
-
-						await pocketbase.collection('users').update(data.record.id, formData);
-					} catch (err) {
-						console.error(err);
-						toast.warning('An error occured during user data update', {
-							description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-						});
-					}
-				}
-
-				toast.success('Logged in successfully!');
-			})
-			.catch((err) => {
-				console.error(err);
-				toast.error('An error occured during OAuth2 flow', {
-					description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-				});
-			});
-	}
 
 	function logout(): void {
 		pbLogout();
@@ -189,7 +145,7 @@
 							src={pocketbase.files.getUrl($currentUser, $currentUser.avatar, { thumb: '128x128' })}
 							alt="Avatar of {$currentUser.name}"
 						/>
-						<Avatar.Fallback>{getInitial($currentUser.name)}</Avatar.Fallback>
+						<Avatar.Fallback class="text-lg">{getInitial($currentUser.name)}</Avatar.Fallback>
 					</Avatar.Root>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content>
@@ -207,10 +163,14 @@
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<button
-				on:click={login}
+			<a
+				on:click={() => {
+					localStorage.setItem('oauthProvider', JSON.stringify(data.provider));
+					localStorage.setItem('oauthFinishRedirectTo', $page.url.pathname);
+				}}
+				href={data.provider?.authUrl + PUBLIC_OAUTH_REDIRECT_URL}
 				class="inline-flex h-11 w-11 items-center justify-center whitespace-nowrap rounded-md border border-input bg-background p-0.5 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-				>Staff</button
+				>Staff</a
 			>
 		{/if}
 	</div>

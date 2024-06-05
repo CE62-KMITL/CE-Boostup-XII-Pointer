@@ -38,7 +38,7 @@
 						})}
 						alt="Avatar of {group.name}"
 					/>
-					<Avatar.Fallback>{getInitial(group.name)}</Avatar.Fallback>
+					<Avatar.Fallback class="text-3xl">{getInitial(group.name)}</Avatar.Fallback>
 				</Avatar.Root>
 				<div class="w-0 flex-grow">
 					<p class="overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-bold">

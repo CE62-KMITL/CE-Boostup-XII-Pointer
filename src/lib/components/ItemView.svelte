@@ -89,7 +89,8 @@
 				{#if itemStatus === 'finished'}
 					<AlertDialog.Root>
 						<AlertDialog.Trigger
-							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs hover:bg-cprimary sm:text-sm"
+							><Button
+								class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs hover:bg-cprimary sm:w-20 sm:text-sm"
 								>รับของ</Button
 							></AlertDialog.Trigger
 						>
@@ -108,7 +109,9 @@
 						</AlertDialog.Content>
 					</AlertDialog.Root>
 				{:else if itemStatus === 'in-progress'}
-					<Button class="h-8 w-[4.5rem] px-2 text-xs sm:text-sm" disabled>ยังไม่สำเร็จ</Button>
+					<Button class="h-8 w-[4.5rem] px-2 text-xs sm:w-20 sm:text-sm" disabled
+						>ยังไม่สำเร็จ</Button
+					>
 				{:else}
 					<p
 						class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}

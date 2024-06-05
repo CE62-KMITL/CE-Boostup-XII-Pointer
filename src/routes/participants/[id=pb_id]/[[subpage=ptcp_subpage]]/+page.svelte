@@ -58,7 +58,7 @@
 
 	$: if (browser && $currentUser !== undefined) clientLoad();
 
-	async function clientLoad() {
+	async function clientLoad(): Promise<void> {
 		if ($currentUser === undefined) return;
 		unsubscribes.forEach((unsubscribe) => {
 			try {
