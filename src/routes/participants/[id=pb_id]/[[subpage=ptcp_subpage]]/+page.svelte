@@ -85,7 +85,7 @@
 				.getOne<ParticipantGroupModel>(data.id, {
 					expand: 'group'
 				});
-			title = `CE Boostup XII - ${participant.name}`;
+			title = `CE Boostup XII - ${participant.name} - บ้าน ${participant.expand.group.name}`;
 			group = participant.expand.group as GroupParticipantModel;
 			updateGroupScore(group.id);
 			subscribe<ParticipantGroupModel>('participants', participant.id, ({ action, record }) => {
@@ -256,7 +256,7 @@
 <div class="grid">
 	{#if $page.state.subpage && participant && group && group.expand?.participants_via_group && $currentUser}
 		<div
-			class="col-start-1 col-end-2 row-start-1 row-end-2 h-full"
+			class="col-start-1 col-end-2 row-start-1 row-end-2"
 			transition:fly={{ duration: 250, x: '100%', easing: quartOut, opacity: 1 }}
 		>
 			{#if $page.state.subpage === 'add-score'}

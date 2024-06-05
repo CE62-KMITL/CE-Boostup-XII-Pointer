@@ -79,15 +79,7 @@
 	const setModeLight = (): void => setMode('light');
 	const setModeDark = (): void => setMode('dark');
 
-	const openProfileEdit = (): void => {
-		updateUserName = $currentUser?.name ?? '';
-
-		const openProfileEditButton = document.getElementById('openProfileEditButton');
-
-		if (openProfileEditButton) {
-			openProfileEditButton.click();
-		}
-	};
+	let updateProfileSheetOpen = false;
 
 	let updateUserName = '';
 	let updateUserAvatar: FileList;
@@ -128,7 +120,7 @@
 <ModeWatcher />
 <Toaster richColors closeButton position={isPhone ? 'top-center' : 'bottom-right'} />
 
-<Sheet.Root>
+<Sheet.Root bind:open={updateProfileSheetOpen}>
 	<Sheet.Trigger asChild let:builder>
 		<Button builders={[builder]} id="openProfileEditButton" class="hidden">Open</Button>
 	</Sheet.Trigger>
@@ -202,7 +194,12 @@
 					<DropdownMenu.Group>
 						<DropdownMenu.Label>My Account</DropdownMenu.Label>
 						<DropdownMenu.Separator />
-						<DropdownMenu.Item on:click={openProfileEdit}>Profile</DropdownMenu.Item>
+						<DropdownMenu.Item
+							on:click={() => {
+								updateUserName = $currentUser.name;
+								updateProfileSheetOpen = true;
+							}}>Profile</DropdownMenu.Item
+						>
 						<DropdownMenu.Item on:click={logout}>Logout</DropdownMenu.Item>
 					</DropdownMenu.Group>
 				</DropdownMenu.Content>

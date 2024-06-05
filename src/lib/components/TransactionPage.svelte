@@ -52,21 +52,21 @@
 						tabSelected = true;
 					}}
 					value="add-score"
-					class="w-28 flex-grow hover:bg-gray-200 hover:dark:bg-gray-700">เพิ่มคะแนน</Tabs.Trigger
+					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">เพิ่มคะแนน</Tabs.Trigger
 				>
 				<Tabs.Trigger
 					on:click={() => {
 						tabSelected = true;
 					}}
 					value="subtract-score"
-					class="w-28 flex-grow hover:bg-gray-200 hover:dark:bg-gray-700">หักคะแนนบ้าน</Tabs.Trigger
+					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">หักคะแนนบ้าน</Tabs.Trigger
 				>
 				<Tabs.Trigger
 					on:click={() => {
 						tabSelected = true;
 					}}
 					value="items"
-					class="w-28 flex-grow hover:bg-gray-200 hover:dark:bg-gray-700">รับของรางวัล</Tabs.Trigger
+					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">รับของรางวัล</Tabs.Trigger
 				>
 			</Tabs.List>
 			<Tabs.Content value="add-score">

@@ -38,7 +38,7 @@ export function format(
 	];
 	const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
 	const exponentialRegexp = /\.0+(?=e)|(?<=\.[0-9]*[1-9])0+(?=e)/;
-	const item = lookup.findLast((item) => num >= item.value);
+	const item = lookup.findLast((item) => num >= item.value && num < item.value * 1e3);
 	return item
 		? (num / item.value).toFixed(digits).replace(regexp, '').concat(item.symbol)
 		: num.toExponential(digits).replace(exponentialRegexp, '');

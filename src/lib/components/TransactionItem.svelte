@@ -46,7 +46,7 @@
 					{transaction.targetType === 'group' ? 'บ้าน ' + transaction.expand.group.name : ''}
 					{#if transaction.targetType === 'participant'}
 						{#if transaction.participant === participant.id}
-							<strong class="font-medium text-fuchsia-500"
+							<strong class="font-medium text-fuchsia-500 dark:text-fuchsia-400"
 								>{transaction.expand.participant.name}</strong
 							>
 						{:else}

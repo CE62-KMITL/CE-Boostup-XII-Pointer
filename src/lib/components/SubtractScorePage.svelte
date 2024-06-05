@@ -103,6 +103,6 @@
 			autofocus
 			bind:value={score}
 		/>
-		<Button type="submit" class="mt-8 w-full bg-cprimary hover:bg-cprimary">บันทึก</Button>
+		<Button type="submit" class="mb-64 mt-8 w-full bg-cprimary hover:bg-cprimary">บันทึก</Button>
 	</form>
 </div>
