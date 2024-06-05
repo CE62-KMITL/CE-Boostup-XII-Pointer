@@ -24,54 +24,56 @@
 
 	$: isPhone = !browser || (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
 
-	async function login(): Promise<void> {
-		try {
-			const data = await pocketbase.collection('users').authWithOAuth2({ provider: 'google' });
+	function login(): void {
+		pocketbase
+			.collection('users')
+			.authWithOAuth2({ provider: 'google' })
+			.then(async (data) => {
+				const meta = data.meta;
 
-			const meta = data.meta;
+				if (meta && meta.isNew) {
+					const formData = new FormData();
 
-			if (meta && meta.isNew) {
-				const formData = new FormData();
-
-				try {
-					if (meta.name) {
-						try {
-							formData.append('name', meta.name);
-						} catch (err) {
-							console.error(err);
-						}
-					}
-
-					if (meta.avatarUrl) {
-						try {
-							const avatarResponse = await fetch(meta.avatarUrl);
-							if (avatarResponse.ok) {
-								formData.append('avatar', await avatarResponse.blob());
+					try {
+						if (meta.name) {
+							try {
+								formData.append('name', meta.name);
+							} catch (err) {
+								console.error(err);
 							}
-						} catch (err) {
-							console.error(err);
 						}
-					}
 
-					await pocketbase.collection('users').update(data.record.id, formData);
-				} catch (err) {
-					console.error(err);
-					toast.error('An error occured during user data update', {
-						description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-					});
+						if (meta.avatarUrl) {
+							try {
+								const avatarResponse = await fetch(meta.avatarUrl);
+								if (avatarResponse.ok) {
+									formData.append('avatar', await avatarResponse.blob());
+								}
+							} catch (err) {
+								console.error(err);
+							}
+						}
+
+						await pocketbase.collection('users').update(data.record.id, formData);
+					} catch (err) {
+						console.error(err);
+						toast.warning('An error occured during user data update', {
+							description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
+						});
+					}
 				}
-			}
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occured during OAuth2 flow', {
-				description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
+
+				toast.success('Logged in successfully!');
+			})
+			.catch((err) => {
+				console.error(err);
+				toast.error('An error occured during OAuth2 flow', {
+					description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
+				});
 			});
-			return;
-		}
-		toast.success('Logged in successfully!');
 	}
 
-	async function logout(): Promise<void> {
+	function logout(): void {
 		pbLogout();
 		toast.success('Logged out successfully!');
 	}
@@ -84,7 +86,7 @@
 	let updateUserName = '';
 	let updateUserAvatar: FileList;
 
-	async function updateUser(): Promise<void> {
+	function updateUser(): void {
 		if (!$currentUser) {
 			toast.error('You must be logged in to update your profile');
 			return;
@@ -205,7 +207,11 @@
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		{:else}
-			<Button on:click={login} variant="outline" class="h-11 w-11 p-0.5">Staff</Button>
+			<button
+				on:click={login}
+				class="inline-flex h-11 w-11 items-center justify-center whitespace-nowrap rounded-md border border-input bg-background p-0.5 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+				>Staff</button
+			>
 		{/if}
 	</div>
 </nav>

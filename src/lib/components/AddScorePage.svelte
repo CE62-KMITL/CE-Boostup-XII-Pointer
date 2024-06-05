@@ -12,20 +12,18 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group';
 	import { format } from '$lib/format-number';
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 	import { cn } from '$lib/utils';
 
 	let className: string = '';
 	export { className as class };
-	export let participant: ParticipantGroupModel;
+	export let participant: ParticipantModel;
 	export let group: GroupParticipantModel;
 
 	let scoreMode: 'per-person' | 'total' = 'per-person';
-	let score: number | undefined = undefined;
-
-	$: score = score === undefined ? undefined : score >= 0 ? score : 0;
+	let score: string | undefined = undefined;
 
 	let selectedParticipantIds: string[] = [];
 	let setInitialSelectedParticipantIds = false;
@@ -37,20 +35,25 @@
 		}
 	}
 
-	async function updateScore(): Promise<void> {
-		if (selectedParticipantIds.length === 0 || !score) {
+	function updateScore(): void {
+		if (!score?.match(/^[0-9]+(\.[0-9]+)?$/)) {
+			toast.error('Invalid score');
+			return;
+		}
+		let parsedScore = score ? +score : 0;
+		if (selectedParticipantIds.length === 0 || !parsedScore) {
 			toast.warning('Score not updated', {
 				description: 'No changes to apply'
 			});
 			return;
 		}
 		if (scoreMode === 'total') {
-			score = score / selectedParticipantIds.length;
+			parsedScore = parsedScore / selectedParticipantIds.length;
 		}
 		const updateScorePromise = Promise.all(
 			selectedParticipantIds.map((id) => {
 				pocketbase.collection('participants').update(id, {
-					'score+': score
+					'score+': parsedScore
 				});
 			})
 		);
@@ -64,16 +67,16 @@
 						targetType: 'participant',
 						participant: id,
 						action: 'add',
-						score: score
+						score: parsedScore
 					});
 				});
-				score = 0;
+				score = '0';
 				pushState('.', { subpage: undefined });
 				return 'Score updated!';
 			},
 			error: (err) => {
 				console.error(err);
-				score = 0;
+				score = '0';
 				pushState('.', { subpage: undefined });
 				return `An error occured during score update: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
@@ -108,8 +111,6 @@
 		<Label class="text-lg font-bold">กรอกคะแนน</Label>
 		<Input
 			class="mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
-			type="number"
-			pattern="[0-9]*"
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"
@@ -212,11 +213,12 @@
 							class="ml-2 w-fit flex-shrink-0 py-1 text-base font-medium text-green-600"
 						>
 							{#if selectedParticipantIds.includes(participant.id)}
-								+
-								{#if scoreMode === 'per-person'}
-									{format(+(score ?? 0))}
+								{#if score && !score?.match(/^[0-9]*(\.[0-9]+)?$/)}
+									<strong class="font-medium text-red-400">Error</strong>
+								{:else if scoreMode === 'per-person'}
+									+ {format(+(score ?? 0))}
 								{:else}
-									{format((score ?? 0) / selectedParticipantIds.length)}
+									+ {format(+(score ?? 0) / selectedParticipantIds.length)}
 								{/if}
 							{/if}
 						</Label>

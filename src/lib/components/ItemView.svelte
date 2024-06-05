@@ -7,7 +7,7 @@
 	import { Progress } from '$lib/components/ui/progress';
 	import { format } from '$lib/format-number';
 	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 	import { cn } from '$lib/utils';
@@ -15,7 +15,7 @@
 	let className: string = '';
 	export { className as class };
 	export let item: ItemModel;
-	export let participant: ParticipantGroupModel;
+	export let participant: ParticipantModel;
 
 	$: itemStatus = participant.itemsUnlocked.includes(item.id)
 		? 'claimed'
@@ -29,7 +29,7 @@
 				? 'สำเร็จแล้ว'
 				: 'ยังไม่สำเร็จ';
 
-	async function markItemAsClaimed(): Promise<void> {
+	function markItemAsClaimed(): void {
 		const markItemAsClaimedPromise = pocketbase.collection('participants').update(participant.id, {
 			'itemsUnlocked+': item.id
 		});
@@ -89,7 +89,7 @@
 				{#if itemStatus === 'finished'}
 					<AlertDialog.Root>
 						<AlertDialog.Trigger
-							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs	hover:bg-cprimary	"
+							><Button class="h-8 w-[4.5rem] bg-cprimary px-2 text-xs hover:bg-cprimary sm:text-sm"
 								>รับของ</Button
 							></AlertDialog.Trigger
 						>
@@ -108,7 +108,7 @@
 						</AlertDialog.Content>
 					</AlertDialog.Root>
 				{:else if itemStatus === 'in-progress'}
-					<Button class="h-8 w-[4.5rem] px-2 text-xs" disabled>ยังไม่สำเร็จ</Button>
+					<Button class="h-8 w-[4.5rem] px-2 text-xs sm:text-sm" disabled>ยังไม่สำเร็จ</Button>
 				{:else}
 					<p
 						class={cn('mb-1 text-sm font-medium transition-all duration-500', itemStatus + '-text')}

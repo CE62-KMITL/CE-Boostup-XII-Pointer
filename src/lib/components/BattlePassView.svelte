@@ -6,13 +6,13 @@
 
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 
 	const animationDuration = 400;
 
 	let className: string = '';
 	export { className as class };
-	export let participant: ParticipantGroupModel | undefined;
+	export let participant: ParticipantModel | undefined;
 	export let items: ItemModel[] | undefined;
 
 	let sortedItems: ItemModel[] | undefined;

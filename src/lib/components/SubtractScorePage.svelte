@@ -8,27 +8,34 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
-	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
+	import type { GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 
 	let className: string = '';
 	export { className as class };
-	export let group: GroupParticipantModel;
+	export let group: GroupModel;
 
-	let score: number | undefined = undefined;
+	let score: string | undefined = undefined;
 
-	$: score = score === undefined ? undefined : score >= 0 ? score : 0;
-
-	async function updateScore() {
-		if (!score) {
+	function updateScore(): void {
+		if (!score?.match(/^[0-9]+(\.[0-9]+)?$/)) {
+			toast.error('Invalid score');
+			return;
+		}
+		const parsedScore = score ? +score : 0;
+		if (!parsedScore) {
 			toast.warning('Score not updated', {
 				description: 'No changes to apply'
 			});
 			return;
 		}
+		if (parsedScore < 0) {
+			toast.error('Score must be a positive number');
+			return;
+		}
 		const decrementPromise = pocketbase.collection('groups').update(group.id, {
-			'scoreOffset-': score
+			'scoreOffset-': parsedScore
 		});
 		toast.promise(decrementPromise, {
 			loading: 'Updating score...',
@@ -39,15 +46,15 @@
 					targetType: 'group',
 					group: group.id,
 					action: 'subtract',
-					score: score
+					score: parsedScore
 				});
-				score = 0;
+				score = '0';
 				pushState('.', { subpage: undefined });
 				return 'Score updated!';
 			},
 			error: (err) => {
 				console.error(err);
-				score = 0;
+				score = '0';
 				pushState('.', { subpage: undefined });
 				return `An error occured during score update: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
@@ -95,8 +102,6 @@
 		>
 		<Input
 			class="mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
-			type="number"
-			pattern="[0-9]*"
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"

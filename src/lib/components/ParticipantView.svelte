@@ -3,14 +3,14 @@
 	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { format } from '$lib/format-number';
 	import { getInitial } from '$lib/get-initial.js';
-	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface';
+	import type { GroupModel } from '$lib/interfaces/group-model.interface';
+	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 	import { pocketbase } from '$lib/pocketbase';
 
 	let className: string = '';
 	export { className as class };
-	export let participant: ParticipantGroupModel | undefined;
-	export let group: GroupParticipantModel | undefined;
+	export let participant: ParticipantModel | undefined;
+	export let group: GroupModel | undefined;
 </script>
 
 <div class={className}>

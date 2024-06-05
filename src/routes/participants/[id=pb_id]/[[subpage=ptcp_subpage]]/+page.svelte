@@ -1,6 +1,4 @@
 <script lang="ts">
-	// @hmr:keep-all
-
 	import { TriangleAlert } from 'lucide-svelte';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import { onDestroy, onMount } from 'svelte';
@@ -21,19 +19,23 @@
 	import type { ItemModel } from '$lib/interfaces/ItemModel.interface.js';
 	import type { GroupModel, GroupParticipantModel } from '$lib/interfaces/group-model.interface.js';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
-	import type { ParticipantGroupModel } from '$lib/interfaces/participant-model.interface.js';
+	import type {
+		ParticipantGroupModel,
+		ParticipantModel
+	} from '$lib/interfaces/participant-model.interface.js';
 	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface.js';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
 
 	export let data;
 
-	let title = 'CE Boostup XII - Participant';
+	let title = data.title;
 
-	let participant: ParticipantGroupModel | undefined | null = undefined;
-	let group: GroupParticipantModel | undefined = undefined;
-	let groupScore: number | undefined = undefined;
+	let participant: ParticipantModel | null = data.participant;
+	let group: GroupModel | undefined = data.group;
+	let groupScore: number | undefined = data.groupScore?.score;
+	let items: ItemModel[] | undefined = data.items;
+	let groupExpanded: GroupParticipantModel | undefined = undefined;
 	let groups: GroupModel[] | undefined = undefined;
-	let items: ItemModel[] | undefined = undefined;
 	let transactions: TransactionExpandedModel[] | undefined = undefined;
 
 	let unsubscribes: (() => void)[] = [];
@@ -54,22 +56,10 @@
 		unsubscribes.push(unsubscribe);
 	}
 
-	let firstRun = true;
-	let reactiveFirstRun = true;
+	$: if (browser && $currentUser !== undefined) clientLoad();
 
-	$: if (browser) {
-		init(!$currentUser && false && reactiveFirstRun);
-		reactiveFirstRun = false;
-	}
-
-	async function init(firstRunOnly: boolean = false): Promise<void> {
-		if ($currentUser === undefined) {
-			return;
-		}
-		if (firstRunOnly && !firstRun) {
-			return;
-		}
-		firstRun = false;
+	async function clientLoad() {
+		if ($currentUser === undefined) return;
 		unsubscribes.forEach((unsubscribe) => {
 			try {
 				unsubscribe();
@@ -78,107 +68,7 @@
 			}
 		});
 		unsubscribes = [];
-		const itemsPromise = pocketbase.collection('items').getFullList<ItemModel>();
-		try {
-			participant = await pocketbase
-				.collection('participants')
-				.getOne<ParticipantGroupModel>(data.id, {
-					expand: 'group'
-				});
-			title = `CE Boostup XII - ${participant.name} - บ้าน ${participant.expand.group.name}`;
-			group = participant.expand.group as GroupParticipantModel;
-			updateGroupScore(group.id);
-			subscribe<ParticipantGroupModel>('participants', participant.id, ({ action, record }) => {
-				if (action === 'update') {
-					participant = record;
-				}
-			});
-			items = await itemsPromise;
-			if ($currentUser) {
-				try {
-					group = await pocketbase.collection('groups').getOne<GroupParticipantModel>(group.id, {
-						expand: 'participants_via_group'
-					});
-					subscribe<GroupParticipantModel>(
-						'groups',
-						group.id,
-						({ action, record }) => {
-							if (action === 'update') {
-								group = record;
-							}
-							updateGroupScore(group?.id);
-						},
-						{
-							expand: 'participants_via_group'
-						}
-					);
-				} catch (err) {
-					console.error(err);
-					subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
-						if (action === 'update') {
-							group = record;
-						}
-						updateGroupScore(group?.id);
-					});
-				}
-				try {
-					transactions = (
-						await pocketbase.collection('transactions').getList<TransactionExpandedModel>(0, 500, {
-							expand: 'user, participant, group, item',
-							sort: '-created',
-							filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
-						})
-					).items;
-					subscribe<TransactionExpandedModel>(
-						'transactions',
-						'*',
-						({ action, record }) => {
-							if (
-								record.targetType === 'participant' &&
-								!group?.expand?.participants_via_group?.find((p) => p.id === record.participant)
-							) {
-								return;
-							}
-							if (record.targetType === 'group' && record.group !== group?.id) {
-								return;
-							}
-							switch (action) {
-								case 'create':
-									transactions = transactions ? [record, ...transactions] : [record];
-									break;
-								case 'update': {
-									const index = transactions?.findIndex(
-										(transaction) => transaction.id === record.id
-									);
-									if (index !== undefined && transactions && index !== -1) {
-										transactions[index] = record;
-									}
-									break;
-								}
-								case 'delete':
-									transactions = transactions?.filter(
-										(transaction) => transaction.id !== record.id
-									);
-									break;
-							}
-						},
-						{
-							expand: 'user, participant, group, item'
-						}
-					);
-				} catch (err) {
-					console.error(err);
-				}
-			} else {
-				subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
-					if (action === 'update') {
-						group = record;
-					}
-					updateGroupScore(group?.id);
-				});
-			}
-		} catch (err) {
-			participant = null;
+		if (participant === null) {
 			if ($currentUser) {
 				title = 'CE Boostup XII - Add Participant';
 			} else {
@@ -207,9 +97,42 @@
 				} catch (err) {
 					console.error(err);
 				}
+				try {
+					subscribe<ParticipantGroupModel>(
+						'participants',
+						'*',
+						({ action, record }) => {
+							if (action === 'create' && record.id === data.id) {
+								participant = record;
+								group = record.expand.group;
+								updateGroupScore(group.id);
+								clientLoad();
+							}
+						},
+						{
+							expand: 'group'
+						}
+					);
+				} catch (err) {
+					console.error(err);
+				}
 			}
-			items = await itemsPromise;
+			return;
 		}
+		if (!group) {
+			group = await pocketbase.collection('groups').getOne<GroupModel>(participant.group);
+		}
+		subscribe<ParticipantModel>('participants', participant.id, ({ action, record }) => {
+			switch (action) {
+				case 'update':
+					participant = record;
+					break;
+				case 'delete':
+					participant = null;
+					clientLoad();
+					break;
+			}
+		});
 		subscribe<ItemModel>('items', '*', ({ action, record }) => {
 			switch (action) {
 				case 'create':
@@ -227,9 +150,95 @@
 					break;
 			}
 		});
+		if ($currentUser) {
+			try {
+				groupExpanded = await pocketbase
+					.collection('groups')
+					.getOne<GroupParticipantModel>(group.id, {
+						expand: 'participants_via_group'
+					});
+				subscribe<GroupParticipantModel>(
+					'groups',
+					group.id,
+					({ action, record }) => {
+						if (action === 'update') {
+							group = record;
+							groupExpanded = record;
+						}
+						updateGroupScore(group?.id);
+					},
+					{
+						expand: 'participants_via_group'
+					}
+				);
+			} catch (err) {
+				console.error(err);
+			}
+			try {
+				transactions = (
+					await pocketbase.collection('transactions').getList<TransactionExpandedModel>(0, 500, {
+						expand: 'user, participant, group, item',
+						sort: '-created',
+						filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
+					})
+				).items;
+				subscribe<TransactionExpandedModel>(
+					'transactions',
+					'*',
+					({ action, record }) => {
+						if (
+							record.targetType === 'participant' &&
+							!groupExpanded?.expand?.participants_via_group?.find(
+								(p) => p.id === record.participant
+							)
+						) {
+							return;
+						}
+						if (record.targetType === 'group' && record.group !== group?.id) {
+							return;
+						}
+						switch (action) {
+							case 'create':
+								transactions = transactions ? [record, ...transactions] : [record];
+								break;
+							case 'update': {
+								const index = transactions?.findIndex(
+									(transaction) => transaction.id === record.id
+								);
+								if (index !== undefined && transactions && index !== -1) {
+									transactions[index] = record;
+								}
+								break;
+							}
+							case 'delete':
+								transactions = transactions?.filter((transaction) => transaction.id !== record.id);
+								break;
+						}
+					},
+					{
+						expand: 'user, participant, group, item'
+					}
+				);
+			} catch (err) {
+				console.error(err);
+			}
+		} else {
+			subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
+				switch (action) {
+					case 'update':
+						group = record;
+						updateGroupScore(group?.id);
+						break;
+					case 'delete':
+						group = undefined;
+						clientLoad();
+						break;
+				}
+			});
+		}
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		if (data.subpage) {
 			if ($currentUser) {
 				setTimeout(() => {
@@ -241,7 +250,6 @@
 				}, 0);
 			}
 		}
-		init(true);
 	});
 
 	onDestroy(() => {
@@ -254,13 +262,13 @@
 </svelte:head>
 
 <div class="grid">
-	{#if $page.state.subpage && participant && group && group.expand?.participants_via_group && $currentUser}
+	{#if $currentUser && $page.state.subpage && participant && group && groupExpanded}
 		<div
 			class="col-start-1 col-end-2 row-start-1 row-end-2"
 			transition:fly={{ duration: 250, x: '100%', easing: quartOut, opacity: 1 }}
 		>
 			{#if $page.state.subpage === 'add-score'}
-				<AddScorePage {participant} {group} />
+				<AddScorePage {participant} group={groupExpanded} />
 			{:else if $page.state.subpage === 'subtract-score'}
 				<SubtractScorePage {group} />
 			{:else if $page.state.subpage === 'transaction'}
@@ -273,13 +281,7 @@
 			transition:fly={{ duration: 250, x: '100%', easing: quartOut, opacity: 1 }}
 		>
 			{#if $currentUser}
-				<ParticipantCreatePage
-					id={data.id}
-					{groups}
-					on:created={() => {
-						init();
-					}}
-				/>
+				<ParticipantCreatePage id={data.id} {groups} />
 			{:else}
 				<div class="mt-20 text-center">
 					<div class="mb-8 flex justify-center">

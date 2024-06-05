@@ -40,14 +40,16 @@ async function refresh(): Promise<void> {
 			});
 		}, 1000);
 	}
+	currentUser.set(pocketbase.authStore.model as UserAuthModel | null);
 }
 
 if (browser) {
 	if (pocketbase.authStore.isValid) {
-		await refresh();
+		refresh();
 	} else {
 		pocketbase.authStore.clear();
+		currentUser.set(null);
 	}
+} else {
+	currentUser.set(null);
 }
-
-currentUser.set(pocketbase.authStore.model as UserAuthModel | null);
