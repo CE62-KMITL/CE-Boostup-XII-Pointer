@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { Mutex } from 'async-mutex';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import { onDestroy, onMount } from 'svelte';
 	import { quartOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
-	import { Mutex } from 'async-mutex';
 
 	import { browser } from '$app/environment';
 	import { replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import AddScorePage from '$lib/components/AddScorePage.svelte';
 	import BattlePassView from '$lib/components/BattlePassView.svelte';
+	import ErrorPage from '$lib/components/ErrorPage.svelte';
 	import GroupView from '$lib/components/GroupView.svelte';
 	import ParticipantCreatePage from '$lib/components/ParticipantCreatePage.svelte';
 	import ParticipantView from '$lib/components/ParticipantView.svelte';
@@ -25,7 +26,6 @@
 	} from '$lib/interfaces/participant-model.interface.js';
 	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface.js';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
-	import ErrorPage from '$lib/components/ErrorPage.svelte';
 
 	export let data;
 
@@ -59,10 +59,10 @@
 		unsubscribes.push(unsubscribe);
 	}
 
-	$: if (browser && $currentUser !== undefined) clientLoad();
+	$: $currentUser, clientLoad();
 
 	async function clientLoad(): Promise<void> {
-		if ($currentUser === undefined) return;
+		if (!browser || $currentUser === undefined) return;
 		const release = await mutex.acquire();
 		try {
 			unsubscribes.forEach((unsubscribe) => {
@@ -73,6 +73,7 @@
 				}
 			});
 			unsubscribes = [];
+			const subscriptionPromises: Promise<void>[] = [];
 			if (participant === null) {
 				if ($currentUser) {
 					title = 'CE Boostup XII - Add Participant';
@@ -82,28 +83,33 @@
 				if ($currentUser) {
 					try {
 						groups = await pocketbase.collection('groups').getFullList<GroupModel>();
-						subscribe<GroupModel>('groups', '*', ({ action, record }) => {
-							switch (action) {
-								case 'create':
-									groups = groups ? [...groups, record] : [record];
-									break;
-								case 'update': {
-									const index = groups?.findIndex((group) => group.id === record.id);
-									if (index !== undefined && groups && index !== -1) {
-										groups[index] = record;
+						const groupsSubscriptionPromise = subscribe<GroupModel>(
+							'groups',
+							'*',
+							({ action, record }) => {
+								switch (action) {
+									case 'create':
+										groups = groups ? [...groups, record] : [record];
+										break;
+									case 'update': {
+										const index = groups?.findIndex((group) => group.id === record.id);
+										if (index !== undefined && groups && index !== -1) {
+											groups[index] = record;
+										}
+										break;
 									}
-									break;
+									case 'delete':
+										groups = groups?.filter((group) => group.id !== record.id);
+										break;
 								}
-								case 'delete':
-									groups = groups?.filter((group) => group.id !== record.id);
-									break;
 							}
-						});
+						);
+						subscriptionPromises.push(groupsSubscriptionPromise);
 					} catch (err) {
 						console.error(err);
 					}
 					try {
-						subscribe<ParticipantGroupModel>(
+						const participantsSubscriptionPromise = subscribe<ParticipantGroupModel>(
 							'participants',
 							'*',
 							({ action, record }) => {
@@ -118,6 +124,7 @@
 								expand: 'group'
 							}
 						);
+						subscriptionPromises.push(participantsSubscriptionPromise);
 					} catch (err) {
 						console.error(err);
 					}
@@ -127,18 +134,22 @@
 			if (!group) {
 				group = await pocketbase.collection('groups').getOne<GroupModel>(participant.group);
 			}
-			subscribe<ParticipantModel>('participants', participant.id, ({ action, record }) => {
-				switch (action) {
-					case 'update':
-						participant = record;
-						break;
-					case 'delete':
-						participant = null;
-						clientLoad();
-						break;
+			const participantsSubscriptionPromise = subscribe<ParticipantModel>(
+				'participants',
+				participant.id,
+				({ action, record }) => {
+					switch (action) {
+						case 'update':
+							participant = record;
+							break;
+						case 'delete':
+							participant = null;
+							clientLoad();
+							break;
+					}
 				}
-			});
-			subscribe<ItemModel>('items', '*', ({ action, record }) => {
+			);
+			const itemsSubscriptionPromise = subscribe<ItemModel>('items', '*', ({ action, record }) => {
 				switch (action) {
 					case 'create':
 						items = items ? [...items, record] : [record];
@@ -155,6 +166,7 @@
 						break;
 				}
 			});
+			subscriptionPromises.push(participantsSubscriptionPromise, itemsSubscriptionPromise);
 			if ($currentUser) {
 				try {
 					groupExpanded = await pocketbase
@@ -162,7 +174,7 @@
 						.getOne<GroupParticipantModel>(group.id, {
 							expand: 'participants_via_group'
 						});
-					subscribe<GroupParticipantModel>(
+					const groupsSubscriptionPromise = subscribe<GroupParticipantModel>(
 						'groups',
 						group.id,
 						({ action, record }) => {
@@ -176,6 +188,7 @@
 							expand: 'participants_via_group'
 						}
 					);
+					subscriptionPromises.push(groupsSubscriptionPromise);
 				} catch (err) {
 					console.error(err);
 				}
@@ -187,7 +200,7 @@
 							filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
 						})
 					).items;
-					subscribe<TransactionExpandedModel>(
+					const transactionsSubscriptionPromise = subscribe<TransactionExpandedModel>(
 						'transactions',
 						'*',
 						({ action, record }) => {
@@ -226,23 +239,30 @@
 							expand: 'user, participant, group, item'
 						}
 					);
+					subscriptionPromises.push(transactionsSubscriptionPromise);
 				} catch (err) {
 					console.error(err);
 				}
 			} else {
-				subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
-					switch (action) {
-						case 'update':
-							group = record;
-							updateGroupScore(group?.id);
-							break;
-						case 'delete':
-							group = undefined;
-							clientLoad();
-							break;
+				const groupsSubscriptionPromise = subscribe<GroupParticipantModel>(
+					'groups',
+					group.id,
+					({ action, record }) => {
+						switch (action) {
+							case 'update':
+								group = record;
+								updateGroupScore(group?.id);
+								break;
+							case 'delete':
+								group = undefined;
+								clientLoad();
+								break;
+						}
 					}
-				});
+				);
+				subscriptionPromises.push(groupsSubscriptionPromise);
 			}
+			await Promise.allSettled(subscriptionPromises);
 		} finally {
 			release();
 		}

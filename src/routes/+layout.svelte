@@ -2,6 +2,7 @@
 	import Moon from 'lucide-svelte/icons/moon';
 	import Sun from 'lucide-svelte/icons/sun';
 	import { ModeWatcher, resetMode, setMode } from 'mode-watcher';
+	import { onMount } from 'svelte';
 	import Device from 'svelte-device-info';
 	import { toast } from 'svelte-sonner';
 
@@ -9,7 +10,6 @@
 
 	import type { LayoutData } from './$types';
 
-	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { PUBLIC_OAUTH_REDIRECT_URL, PUBLIC_POCKETBASE_URL } from '$env/static/public';
@@ -27,7 +27,7 @@
 
 	let innerWidth = 0;
 
-	$: isPhone = !browser || (innerWidth < 640 && innerWidth !== 0) || Device.isPhone;
+	let isPhone = true;
 
 	function logout(): void {
 		pbLogout();
@@ -67,6 +67,12 @@
 			}
 		});
 	}
+
+	onMount(() => {
+		if (innerWidth > 640 && !Device.isPhone) {
+			isPhone = false;
+		}
+	});
 </script>
 
 <svelte:window bind:innerWidth />

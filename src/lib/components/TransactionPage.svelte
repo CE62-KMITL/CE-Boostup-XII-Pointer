@@ -18,18 +18,48 @@
 	export let transactions: TransactionExpandedModel[] | undefined;
 	export let participant: ParticipantModel;
 
-	let tabSelected = false;
+	let tabSelected: 'add' | 'subtract' | 'reward' | 'all' = 'all';
 </script>
 
 <div
 	class={className}
 	use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
 	on:swipe={(event) => {
-		if (event.detail.direction !== 'right') return;
-		pushState('.', { subpage: undefined });
+		switch (event.detail.direction) {
+			case 'right':
+				switch (tabSelected) {
+					case 'add':
+						tabSelected = 'all';
+						break;
+					case 'subtract':
+						tabSelected = 'add';
+						break;
+					case 'reward':
+						tabSelected = 'subtract';
+						break;
+					case 'all':
+						pushState('.', { subpage: undefined });
+						break;
+				}
+				break;
+
+			case 'left':
+				switch (tabSelected) {
+					case 'add':
+						tabSelected = 'subtract';
+						break;
+					case 'subtract':
+						tabSelected = 'reward';
+						break;
+					case 'all':
+						tabSelected = 'add';
+						break;
+				}
+				break;
+		}
 	}}
 >
-	<div class="flex items-center justify-between">
+	<div class="reward-center flex justify-between">
 		<Button
 			on:click={() => {
 				pushState('.', { subpage: undefined });
@@ -37,7 +67,7 @@
 			variant="ghost"
 			class="flex-shrink-0"
 		>
-			<div class="flex items-center">
+			<div class="reward-center flex">
 				<ChevronLeft class="mr-1.5" /><span class="text-base font-medium">กลับ</span>
 			</div>
 		</Button>
@@ -45,31 +75,35 @@
 		<div class="w-[87.63px]" />
 	</div>
 	<div class="mx-5 my-4">
-		<Tabs.Root value="account">
+		<Tabs.Root bind:value={tabSelected}>
 			<Tabs.List class="flex justify-around">
-				<Tabs.Trigger
-					on:click={() => {
-						tabSelected = true;
-					}}
-					value="add-score"
-					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">เพิ่มคะแนน</Tabs.Trigger
+				<Tabs.Trigger value="add" class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900"
+					>เพิ่มคะแนน</Tabs.Trigger
 				>
 				<Tabs.Trigger
-					on:click={() => {
-						tabSelected = true;
-					}}
-					value="subtract-score"
+					value="subtract"
 					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">หักคะแนนบ้าน</Tabs.Trigger
 				>
-				<Tabs.Trigger
-					on:click={() => {
-						tabSelected = true;
-					}}
-					value="items"
-					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">รับของรางวัล</Tabs.Trigger
+				<Tabs.Trigger value="reward" class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900"
+					>รับของรางวัล</Tabs.Trigger
 				>
 			</Tabs.List>
-			<Tabs.Content value="add-score">
+			<Tabs.Content value="all">
+				<div class="mt-4 divide-y divide-gray-300">
+					{#if transactions}
+						{#each transactions as transaction (transaction.id)}
+							<div
+								animate:flip={{ duration: animationDuration }}
+								in:fade={{ duration: animationDuration }}
+								out:fade={{ duration: animationDuration }}
+							>
+								<TransactionItem {transaction} {participant} />
+							</div>
+						{/each}
+					{/if}
+				</div>
+			</Tabs.Content>
+			<Tabs.Content value="add">
 				<div class="mt-4 divide-y divide-gray-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'add') as transaction (transaction.id)}
@@ -84,7 +118,7 @@
 					{/if}
 				</div>
 			</Tabs.Content>
-			<Tabs.Content value="subtract-score"
+			<Tabs.Content value="subtract"
 				><div class="mt-4 divide-y divide-gray-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'subtract') as transaction (transaction.id)}
@@ -99,7 +133,7 @@
 					{/if}
 				</div></Tabs.Content
 			>
-			<Tabs.Content value="items"
+			<Tabs.Content value="reward"
 				><div class="mt-4 divide-y divide-gray-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'reward') as transaction (transaction.id)}
@@ -115,18 +149,5 @@
 				</div></Tabs.Content
 			>
 		</Tabs.Root>
-		{#if !tabSelected && transactions}
-			<div class="mt-4 divide-y divide-gray-300">
-				{#each transactions as transaction (transaction.id)}
-					<div
-						animate:flip={{ duration: animationDuration }}
-						in:fade={{ duration: animationDuration }}
-						out:fade={{ duration: animationDuration }}
-					>
-						<TransactionItem {transaction} {participant} />
-					</div>
-				{/each}
-			</div>
-		{/if}
 	</div>
 </div>

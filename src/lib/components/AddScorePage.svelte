@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ChevronLeft, Info } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 	import { swipe } from 'svelte-gestures';
 	import { toast } from 'svelte-sonner';
 
@@ -26,14 +27,6 @@
 	let score: string | undefined = undefined;
 
 	let selectedParticipantIds: string[] = [];
-	let setInitialSelectedParticipantIds = false;
-
-	$: {
-		if (participant && !setInitialSelectedParticipantIds) {
-			selectedParticipantIds = [participant.id];
-			setInitialSelectedParticipantIds = true;
-		}
-	}
 
 	function updateScore(): void {
 		if (!score?.match(/^[0-9]+(\.[0-9]+)?$/)) {
@@ -86,6 +79,10 @@
 			}
 		});
 	}
+
+	onMount(() => {
+		selectedParticipantIds = [participant.id];
+	});
 </script>
 
 <div
