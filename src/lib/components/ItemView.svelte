@@ -55,9 +55,9 @@
 </script>
 
 <div class={className}>
-	<div class="flex bg-gray-50 dark:bg-gray-900">
+	<div class="flex bg-slate-50 dark:bg-slate-900">
 		<Dialog.Root>
-			<Dialog.Trigger class="w-full min-w-0 flex-grow p-3 pt-2 text-left sm:mr-4">
+			<Dialog.Trigger class="w-0 flex-grow p-3 pt-2 text-left sm:mr-4">
 				<p class="w-full overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-medium">
 					{item.name}
 				</p>
@@ -68,7 +68,7 @@
 					aria-label="Progress"
 					value={participant.score / item.cost}
 					max={1}
-					class="h-3 w-auto border-2 border-gray-300 bg-gray-300 dark:border-gray-700 dark:bg-gray-700"
+					class="h-3 w-auto border-2 border-slate-300 bg-slate-300 dark:border-slate-700 dark:bg-slate-700"
 					subClass={cn('rounded-full duration-500', itemStatus + '-progress')}
 				/>
 			</Dialog.Trigger>
@@ -83,7 +83,7 @@
 			</Dialog.Content>
 		</Dialog.Root>
 		<div
-			class="flex w-[90px] flex-shrink-0 flex-col items-center justify-center border-l border-gray-400 p-3 sm:w-[122px] sm:px-4"
+			class="flex w-[90px] flex-shrink-0 flex-col items-center justify-center border-l border-slate-400 p-3 sm:w-[122px] sm:px-4"
 		>
 			{#if $currentUser}
 				{#if itemStatus === 'finished'}
@@ -96,15 +96,15 @@
 						>
 						<AlertDialog.Content>
 							<AlertDialog.Header>
-								<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-								<AlertDialog.Description>
-									This action cannot be undone. Well it actually can be there's just no button for
-									it yet.
-								</AlertDialog.Description>
+								<AlertDialog.Title>ยืนยันการรับของใช่หรือไม่</AlertDialog.Title>
+								<AlertDialog.Description>การกระทำนี้ไม่สามารถย้อนกลับได้</AlertDialog.Description>
 							</AlertDialog.Header>
 							<AlertDialog.Footer>
-								<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-								<AlertDialog.Action on:click={markItemAsClaimed}>Continue</AlertDialog.Action>
+								<AlertDialog.Cancel>ยกเลิก</AlertDialog.Cancel>
+								<AlertDialog.Action
+									on:click={markItemAsClaimed}
+									class="bg-cprimary hover:bg-cprimary">ยืนยัน</AlertDialog.Action
+								>
 							</AlertDialog.Footer>
 						</AlertDialog.Content>
 					</AlertDialog.Root>
@@ -139,7 +139,7 @@
 		@apply text-green-600;
 	}
 	.in-progress-text {
-		@apply text-gray-500 dark:text-gray-400;
+		@apply text-slate-500 dark:text-slate-400;
 	}
 	.finished-text {
 		@apply text-csecondary;

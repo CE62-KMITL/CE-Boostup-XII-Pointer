@@ -29,7 +29,7 @@
 			class="link-btn brounded-b-none rounded-t-lg"
 		>
 			เพิ่มคะแนน
-			<ChevronRight class="text-gray-400" />
+			<ChevronRight class="text-slate-400" />
 		</button>
 		<button
 			use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
@@ -44,7 +44,7 @@
 					subpage: 'subtract-score'
 				});
 			}}
-			class="link-btn rounded-none">หักคะแนนบ้าน<ChevronRight class="text-gray-400" /></button
+			class="link-btn rounded-none">หักคะแนนบ้าน<ChevronRight class="text-slate-400" /></button
 		>
 		<button
 			use:swipe={{ timeframe: 300, minSwipeDistance: 60, touchAction: 'pan-y' }}
@@ -61,13 +61,13 @@
 			}}
 			class="link-btn rounded-b-lg rounded-t-none border-b"
 		>
-			ดู Transaction<ChevronRight class="text-gray-400" />
+			ดู Transaction<ChevronRight class="text-slate-400" />
 		</button>
 	</div>
 </div>
 
 <style lang="postcss">
 	.link-btn {
-		@apply flex h-12 w-full items-center justify-between border-x border-t border-gray-300 bg-gray-50 px-4 text-left text-base font-medium dark:border-gray-600 dark:bg-gray-900;
+		@apply flex h-12 w-full items-center justify-between border-x border-t border-slate-300 bg-slate-50 px-4 text-left text-base font-medium dark:border-slate-600 dark:bg-slate-900;
 	}
 </style>

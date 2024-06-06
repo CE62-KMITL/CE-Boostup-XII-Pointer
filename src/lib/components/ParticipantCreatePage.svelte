@@ -69,7 +69,7 @@
 		<Input
 			name="name"
 			value="น้อง"
-			class="my-2 mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
+			class="my-2 mt-2 border border-slate-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-slate-400"
 			autofocus
 		/>
 		{#if $errors.name}
@@ -80,7 +80,7 @@
 		<Label for="fullName" class="mt-6 block text-lg font-bold">ชื่อ-นามสกุล</Label>
 		<Input
 			name="fullName"
-			class="my-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
+			class="my-2 border border-slate-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-slate-400"
 		/>
 		{#if $errors.fullName}
 			{#each $errors.fullName as error}
@@ -96,7 +96,7 @@
 			}}
 			name="groupSelector"
 		>
-			<Select.Trigger class="my-2 border border-gray-700 text-base font-normal">
+			<Select.Trigger class="my-2 border border-slate-700 text-base font-normal">
 				<Select.Value placeholder="เลือกบ้าน" />
 			</Select.Trigger>
 			<Select.Content>

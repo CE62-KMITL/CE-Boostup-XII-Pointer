@@ -29,7 +29,7 @@
 	let selectedParticipantIds: string[] = [];
 
 	function updateScore(): void {
-		if (!score?.match(/^[0-9]+(\.[0-9]+)?$/)) {
+		if (!score?.match(/^[0-9]*(\.[0-9]+)?$/)) {
 			toast.error('Invalid score');
 			return;
 		}
@@ -111,7 +111,7 @@
 	<form on:submit|preventDefault={updateScore} class="mx-5 my-4">
 		<Label class="text-lg font-bold">กรอกคะแนน</Label>
 		<Input
-			class="mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
+			class="mt-2 border border-slate-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-slate-400"
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"
@@ -184,7 +184,7 @@
 			}) as participant}
 				<div
 					class={cn(
-						'flex w-full min-w-0 items-center space-x-2 rounded-sm px-2 hover:bg-gray-50 hover:dark:bg-gray-900',
+						'flex w-full min-w-0 items-center space-x-2 rounded-sm px-2 hover:bg-slate-50 hover:dark:bg-slate-900',
 						selectedParticipantIds.includes(participant.id) ? 'selected' : ''
 					)}
 				>
@@ -233,6 +233,6 @@
 
 <style lang="postcss">
 	.selected {
-		@apply bg-gray-50 dark:bg-gray-900;
+		@apply bg-slate-50 dark:bg-slate-900;
 	}
 </style>

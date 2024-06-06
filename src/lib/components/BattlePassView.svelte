@@ -45,7 +45,7 @@
 				in:fade={{ duration: animationDuration }}
 				out:fade={{ duration: animationDuration }}
 			>
-				<ItemView {participant} {item} class="mt-2 overflow-hidden rounded-lg drop-shadow-md" />
+				<ItemView {participant} {item} class="mt-2 overflow-hidden rounded-lg drop-shadow-lg" />
 			</div>
 		{/each}
 	{/if}

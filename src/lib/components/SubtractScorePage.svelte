@@ -19,7 +19,7 @@
 	let score: string | undefined = undefined;
 
 	function updateScore(): void {
-		if (!score?.match(/^[0-9]+(\.[0-9]+)?$/)) {
+		if (!score?.match(/^[0-9]*(\.[0-9]+)?$/)) {
 			toast.error('Invalid score');
 			return;
 		}
@@ -101,7 +101,7 @@
 			</Dialog.Root></Label
 		>
 		<Input
-			class="mt-2 border border-gray-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-gray-400"
+			class="mt-2 border border-slate-700 text-base placeholder:text-base placeholder:font-medium placeholder:text-slate-400"
 			min="0"
 			inputmode="numeric"
 			placeholder="กรอกตัวเลข"

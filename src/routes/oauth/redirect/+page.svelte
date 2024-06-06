@@ -90,7 +90,7 @@
 </script>
 
 <div class="w-full">
-	<div class="h-1.5 w-full overflow-hidden bg-gray-300 dark:bg-gray-700">
+	<div class="h-1.5 w-full overflow-hidden bg-slate-300 dark:bg-slate-700">
 		<div class="progress left-right h-full w-full bg-cprimary"></div>
 	</div>
 </div>

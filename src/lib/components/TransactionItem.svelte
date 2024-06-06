@@ -13,11 +13,11 @@
 
 <div class={className}>
 	<div
-		class="flex w-full items-center justify-between rounded-lg p-2 hover:bg-gray-50 hover:dark:bg-gray-900"
+		class="flex w-full items-center justify-between rounded-lg p-2 hover:bg-slate-50 hover:dark:bg-slate-900"
 	>
 		<div class="flex w-full items-center">
 			<div
-				class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-900"
+				class="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900"
 			>
 				{#if transaction.action === 'add'}
 					<ArrowUp color="#25BC16" />
@@ -30,7 +30,7 @@
 				{/if}
 			</div>
 			<div class="flex w-0 flex-grow flex-col justify-center">
-				<p class="text-xs text-gray-800 dark:text-gray-400">
+				<p class="text-xs text-slate-800 dark:text-slate-400">
 					{new Date(transaction.created).toLocaleString('th-TH', {
 						dateStyle: 'medium',
 						timeStyle: 'medium'

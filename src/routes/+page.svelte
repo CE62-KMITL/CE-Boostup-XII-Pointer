@@ -92,12 +92,13 @@
 	<title>CE Boostup XII Pointer</title>
 </svelte:head>
 
+<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
 {#if $currentUser}
 	{#if groupsScore}
-		<div class="mx-5 my-4 space-y-2">
+		<div class="mx-5 space-y-2">
 			{#each groupsScore.toSorted((a, b) => b.score - a.score) as group (group.id)}
 				<div
-					class="relative -z-20 flex w-full items-center overflow-hidden rounded-lg bg-gray-50 px-3 py-2 dark:bg-slate-900"
+					class="relative -z-20 flex w-full items-center overflow-hidden rounded-lg bg-slate-100 px-3 py-2 dark:bg-slate-900"
 					animate:flip={{ duration: animationDuration }}
 					in:fade={{ duration: animationDuration }}
 					out:fade={{ duration: animationDuration }}
@@ -110,12 +111,12 @@
 								})}
 								alt="Avatar of {group.name}"
 							/>
-							<Avatar.Fallback class="bg-gray-300 text-lg font-medium dark:bg-slate-700"
+							<Avatar.Fallback class="bg-slate-300 text-lg font-medium dark:bg-slate-700"
 								>{getInitial(group.name)}</Avatar.Fallback
 							>
 						</Avatar.Root>
 						<p
-							class="ml-2 w-0 flex-grow overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-normal"
+							class="ml-3 w-0 flex-grow overflow-hidden text-ellipsis text-nowrap pt-1 text-base font-medium"
 						>
 							{`บ้าน ${group.name}`}
 						</p>
@@ -124,8 +125,8 @@
 						<p class="text-base font-medium">{format(group.score)}</p>
 					</div>
 					<div
-						style="width: {(group.score / maxScore) * 100}%;"
-						class="absolute bottom-0 left-0 top-0 -z-10 rounded-lg bg-gray-100 dark:bg-slate-800"
+						style="width: {maxScore !== 0 ? (group.score / maxScore) * 100 : 0}%;"
+						class="absolute bottom-0 left-0 top-0 -z-10 rounded-lg bg-slate-200 transition-all duration-500 dark:bg-slate-800"
 					></div>
 				</div>
 			{/each}

@@ -45,14 +45,14 @@
 						สวัสดี{participant.name}
 					</p>
 					<p
-						class="overflow-hidden text-ellipsis text-nowrap text-base font-medium text-gray-600 dark:text-gray-400"
+						class="overflow-hidden text-ellipsis text-nowrap text-base font-medium text-slate-600 dark:text-slate-400"
 					>
 						บ้าน {group.name}
 					</p>
 				</div>
 			</div>
 			<div class="ml-auto">
-				<p class="text-end font-medium text-gray-600 dark:text-gray-400">คะแนน</p>
+				<p class="text-end font-medium text-slate-600 dark:text-slate-400">คะแนน</p>
 				<div class="h-10 w-32 rounded-lg bg-cprimary text-center">
 					<p class="p-2 text-xl font-bold text-white dark:text-black">
 						{format(participant.score)}

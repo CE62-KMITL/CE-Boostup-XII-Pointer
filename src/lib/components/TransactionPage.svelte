@@ -77,19 +77,22 @@
 	<div class="mx-5 my-4">
 		<Tabs.Root bind:value={tabSelected}>
 			<Tabs.List class="flex justify-around">
-				<Tabs.Trigger value="add" class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900"
+				<Tabs.Trigger value="add" class="w-28 flex-grow hover:bg-slate-50 hover:dark:bg-slate-900"
 					>เพิ่มคะแนน</Tabs.Trigger
 				>
 				<Tabs.Trigger
 					value="subtract"
-					class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900">หักคะแนนบ้าน</Tabs.Trigger
+					class="w-28 flex-grow hover:bg-slate-50 hover:dark:bg-slate-900"
+					>หักคะแนนบ้าน</Tabs.Trigger
 				>
-				<Tabs.Trigger value="reward" class="w-28 flex-grow hover:bg-gray-50 hover:dark:bg-gray-900"
+				<Tabs.Trigger
+					value="reward"
+					class="w-28 flex-grow hover:bg-slate-50 hover:dark:bg-slate-900"
 					>รับของรางวัล</Tabs.Trigger
 				>
 			</Tabs.List>
 			<Tabs.Content value="all">
-				<div class="mt-4 divide-y divide-gray-300">
+				<div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
 						{#each transactions as transaction (transaction.id)}
 							<div
@@ -104,7 +107,7 @@
 				</div>
 			</Tabs.Content>
 			<Tabs.Content value="add">
-				<div class="mt-4 divide-y divide-gray-300">
+				<div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'add') as transaction (transaction.id)}
 							<div
@@ -119,7 +122,7 @@
 				</div>
 			</Tabs.Content>
 			<Tabs.Content value="subtract"
-				><div class="mt-4 divide-y divide-gray-300">
+				><div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'subtract') as transaction (transaction.id)}
 							<div
@@ -134,7 +137,7 @@
 				</div></Tabs.Content
 			>
 			<Tabs.Content value="reward"
-				><div class="mt-4 divide-y divide-gray-300">
+				><div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
 						{#each transactions.filter((t) => t.action === 'reward') as transaction (transaction.id)}
 							<div
