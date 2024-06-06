@@ -93,8 +93,8 @@
 	<title>CE Boostup XII Pointer</title>
 </svelte:head>
 
-<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
 {#if $currentUser}
+	<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
 	{#if groupsScore}
 		<div class="mx-5 space-y-2">
 			{#each groupsScore.toSorted((a, b) => b.score - a.score) as group (group.id)}
