@@ -1,5 +1,5 @@
-import type { ItemModel } from './ItemModel.interface';
 import type { GroupModel } from './group-model.interface';
+import type { ItemModel } from './item-model.interface';
 import type { ParticipantModel } from './participant-model.interface';
 import type { UserAuthModel } from './user-auth-model.interface';
 

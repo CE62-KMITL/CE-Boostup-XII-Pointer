@@ -89,4 +89,31 @@
 	});
 </script>
 
-Authenticating...
+<div class="w-full">
+	<div class="h-1.5 w-full overflow-hidden bg-gray-300 dark:bg-gray-700">
+		<div class="progress left-right h-full w-full bg-cprimary"></div>
+	</div>
+</div>
+<div class="mt-4 w-full text-center text-2xl font-medium">Authenticating...</div>
+
+<style lang="postcss">
+	.progress {
+		animation: progress 1s infinite linear;
+	}
+
+	.left-right {
+		transform-origin: 0% 50%;
+	}
+
+	@keyframes progress {
+		0% {
+			transform: translateX(0) scaleX(0);
+		}
+		40% {
+			transform: translateX(0) scaleX(0.4);
+		}
+		100% {
+			transform: translateX(100%) scaleX(0.5);
+		}
+	}
+</style>

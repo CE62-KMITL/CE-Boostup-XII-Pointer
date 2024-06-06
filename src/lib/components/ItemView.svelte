@@ -6,7 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Progress } from '$lib/components/ui/progress';
 	import { format } from '$lib/format-number';
-	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
+	import type { ItemModel } from '$lib/interfaces/item-model.interface';
 	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 	import type { UserAuthModel } from '$lib/interfaces/user-auth-model.interface';
 	import { pocketbase, currentUser } from '$lib/pocketbase';

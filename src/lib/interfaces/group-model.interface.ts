@@ -17,3 +17,7 @@ export interface GroupParticipantModel extends GroupModel {
 		participants_via_group: ParticipantModel[];
 	};
 }
+
+export interface GroupExtendScoreModel extends GroupModel {
+	score: number;
+}

@@ -5,7 +5,7 @@
 	import ItemView from './ItemView.svelte';
 
 	import { Skeleton } from '$lib/components/ui/skeleton';
-	import type { ItemModel } from '$lib/interfaces/ItemModel.interface';
+	import type { ItemModel } from '$lib/interfaces/item-model.interface';
 	import type { ParticipantModel } from '$lib/interfaces/participant-model.interface';
 
 	const animationDuration = 400;
