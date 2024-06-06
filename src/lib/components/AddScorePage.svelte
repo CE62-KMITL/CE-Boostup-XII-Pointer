@@ -47,6 +47,10 @@
 			});
 			return;
 		}
+		if (parsedScore < 0) {
+			toast.error('Score must be a positive number');
+			return;
+		}
 		if (scoreMode === 'total') {
 			parsedScore = parsedScore / selectedParticipantIds.length;
 		}
@@ -72,7 +76,7 @@
 				});
 				score = '0';
 				pushState('.', { subpage: undefined });
-				return 'Score updated!';
+				return 'Score updated successfully!';
 			},
 			error: (err) => {
 				console.error(err);

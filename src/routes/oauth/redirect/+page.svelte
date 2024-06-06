@@ -9,33 +9,35 @@
 
 	async function updateProfile(id: string, metadata: { [key: string]: any }): Promise<void> {
 		const formData = new FormData();
-		try {
-			if (metadata.name) {
-				try {
-					formData.append('name', metadata.name);
-				} catch (err) {
-					console.error(err);
-				}
+		if (metadata.name) {
+			try {
+				formData.append('name', metadata.name);
+			} catch (err) {
+				console.error(err);
 			}
-
-			if (metadata.avatarUrl) {
-				try {
-					const avatarResponse = await fetch(metadata.avatarUrl);
-					if (avatarResponse.ok) {
-						formData.append('avatar', await avatarResponse.blob());
-					}
-				} catch (err) {
-					console.error(err);
-				}
-			}
-
-			await pocketbase.collection('users').update(id, formData);
-		} catch (err) {
-			console.error(err);
-			toast.warning('An error occured during user profile update', {
-				description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-			});
 		}
+
+		if (metadata.avatarUrl) {
+			try {
+				const avatarResponse = await fetch(metadata.avatarUrl);
+				if (avatarResponse.ok) {
+					formData.append('avatar', await avatarResponse.blob());
+				}
+			} catch (err) {
+				console.error(err);
+			}
+		}
+
+		const profileUpdatePromise = pocketbase.collection('users').update(id, formData);
+
+		toast.promise(profileUpdatePromise, {
+			loading: 'Updating user profile...',
+			success: 'User profile updated successfully!',
+			error: (err) => {
+				console.error(err);
+				return `An error occured during user profile update: ${err instanceof Error ? err.message : 'Unknown error'}`;
+			}
+		});
 	}
 
 	onMount(async () => {
@@ -59,31 +61,31 @@
 			return;
 		}
 
-		try {
-			const data = await pocketbase
-				.collection('users')
-				.authWithOAuth2Code(
-					provider.name,
-					params.get('code') ?? '',
-					provider.codeVerifier,
-					PUBLIC_OAUTH_REDIRECT_URL
-				);
+		const authPromise = pocketbase
+			.collection('users')
+			.authWithOAuth2Code(
+				provider.name,
+				params.get('code') ?? '',
+				provider.codeVerifier,
+				PUBLIC_OAUTH_REDIRECT_URL
+			);
 
-			const meta = data.meta;
-
-			if (meta && meta.isNew) {
-				updateProfile(data.record.id, meta);
+		toast.promise(authPromise, {
+			loading: 'Authenticating...',
+			success: (data) => {
+				const meta = data.meta;
+				if (meta && meta.isNew) {
+					updateProfile(data.record.id, meta);
+				}
+				goto(redirectTo);
+				return 'Logged in successfully!';
+			},
+			error: (err) => {
+				console.error(err);
+				goto(redirectTo);
+				return `An error occured during OAuth2 flow: ${err instanceof Error ? err.message : 'Unknown error'}`;
 			}
-
-			toast.success('Logged in successfully!');
-		} catch (err) {
-			console.error(err);
-			toast.error('An error occured during OAuth2 flow', {
-				description: `Error: ${err instanceof Error ? err.message : 'Unknown error'}`
-			});
-		}
-
-		goto(redirectTo);
+		});
 	});
 </script>
 

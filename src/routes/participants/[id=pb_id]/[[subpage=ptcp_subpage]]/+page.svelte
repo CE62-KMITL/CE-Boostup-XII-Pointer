@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { TriangleAlert } from 'lucide-svelte';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import { onDestroy, onMount } from 'svelte';
 	import { quartOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
+	import { Mutex } from 'async-mutex';
 
 	import { browser } from '$app/environment';
 	import { replaceState } from '$app/navigation';
@@ -25,8 +25,11 @@
 	} from '$lib/interfaces/participant-model.interface.js';
 	import type { TransactionExpandedModel } from '$lib/interfaces/transaction-model.interface.js';
 	import { pocketbase, currentUser } from '$lib/pocketbase';
+	import ErrorPage from '$lib/components/ErrorPage.svelte';
 
 	export let data;
+
+	const mutex = new Mutex();
 
 	let title = data.title;
 
@@ -60,181 +63,188 @@
 
 	async function clientLoad(): Promise<void> {
 		if ($currentUser === undefined) return;
-		unsubscribes.forEach((unsubscribe) => {
-			try {
-				unsubscribe();
-			} catch (err) {
-				console.error(err);
-			}
-		});
-		unsubscribes = [];
-		if (participant === null) {
-			if ($currentUser) {
-				title = 'CE Boostup XII - Add Participant';
-			} else {
-				title = 'CE Boostup XII - 404 Not Found';
-			}
-			if ($currentUser) {
+		const release = await mutex.acquire();
+		try {
+			unsubscribes.forEach((unsubscribe) => {
 				try {
-					groups = await pocketbase.collection('groups').getFullList<GroupModel>();
-					subscribe<GroupModel>('groups', '*', ({ action, record }) => {
-						switch (action) {
-							case 'create':
-								groups = groups ? [...groups, record] : [record];
-								break;
-							case 'update': {
-								const index = groups?.findIndex((group) => group.id === record.id);
-								if (index !== undefined && groups && index !== -1) {
-									groups[index] = record;
-								}
-								break;
-							}
-							case 'delete':
-								groups = groups?.filter((group) => group.id !== record.id);
-								break;
-						}
-					});
+					unsubscribe();
 				} catch (err) {
 					console.error(err);
 				}
-				try {
-					subscribe<ParticipantGroupModel>(
-						'participants',
-						'*',
-						({ action, record }) => {
-							if (action === 'create' && record.id === data.id) {
-								participant = record;
-								group = record.expand.group;
-								updateGroupScore(group.id);
-								clientLoad();
+			});
+			unsubscribes = [];
+			if (participant === null) {
+				if ($currentUser) {
+					title = 'CE Boostup XII - Add Participant';
+				} else {
+					title = 'CE Boostup XII - 404 Not Found';
+				}
+				if ($currentUser) {
+					try {
+						groups = await pocketbase.collection('groups').getFullList<GroupModel>();
+						subscribe<GroupModel>('groups', '*', ({ action, record }) => {
+							switch (action) {
+								case 'create':
+									groups = groups ? [...groups, record] : [record];
+									break;
+								case 'update': {
+									const index = groups?.findIndex((group) => group.id === record.id);
+									if (index !== undefined && groups && index !== -1) {
+										groups[index] = record;
+									}
+									break;
+								}
+								case 'delete':
+									groups = groups?.filter((group) => group.id !== record.id);
+									break;
 							}
+						});
+					} catch (err) {
+						console.error(err);
+					}
+					try {
+						subscribe<ParticipantGroupModel>(
+							'participants',
+							'*',
+							({ action, record }) => {
+								if (action === 'create' && record.id === data.id) {
+									participant = record;
+									group = record.expand.group;
+									updateGroupScore(group.id);
+									clientLoad();
+								}
+							},
+							{
+								expand: 'group'
+							}
+						);
+					} catch (err) {
+						console.error(err);
+					}
+				}
+				return;
+			}
+			if (!group) {
+				group = await pocketbase.collection('groups').getOne<GroupModel>(participant.group);
+			}
+			subscribe<ParticipantModel>('participants', participant.id, ({ action, record }) => {
+				switch (action) {
+					case 'update':
+						participant = record;
+						break;
+					case 'delete':
+						participant = null;
+						clientLoad();
+						break;
+				}
+			});
+			subscribe<ItemModel>('items', '*', ({ action, record }) => {
+				switch (action) {
+					case 'create':
+						items = items ? [...items, record] : [record];
+						break;
+					case 'update': {
+						const index = items?.findIndex((item) => item.id === record.id);
+						if (index !== undefined && items && index !== -1) {
+							items[index] = record;
+						}
+						break;
+					}
+					case 'delete':
+						items = items?.filter((item) => item.id !== record.id);
+						break;
+				}
+			});
+			if ($currentUser) {
+				try {
+					groupExpanded = await pocketbase
+						.collection('groups')
+						.getOne<GroupParticipantModel>(group.id, {
+							expand: 'participants_via_group'
+						});
+					subscribe<GroupParticipantModel>(
+						'groups',
+						group.id,
+						({ action, record }) => {
+							if (action === 'update') {
+								group = record;
+								groupExpanded = record;
+							}
+							updateGroupScore(group?.id);
 						},
 						{
-							expand: 'group'
+							expand: 'participants_via_group'
 						}
 					);
 				} catch (err) {
 					console.error(err);
 				}
-			}
-			return;
-		}
-		if (!group) {
-			group = await pocketbase.collection('groups').getOne<GroupModel>(participant.group);
-		}
-		subscribe<ParticipantModel>('participants', participant.id, ({ action, record }) => {
-			switch (action) {
-				case 'update':
-					participant = record;
-					break;
-				case 'delete':
-					participant = null;
-					clientLoad();
-					break;
-			}
-		});
-		subscribe<ItemModel>('items', '*', ({ action, record }) => {
-			switch (action) {
-				case 'create':
-					items = items ? [...items, record] : [record];
-					break;
-				case 'update': {
-					const index = items?.findIndex((item) => item.id === record.id);
-					if (index !== undefined && items && index !== -1) {
-						items[index] = record;
-					}
-					break;
-				}
-				case 'delete':
-					items = items?.filter((item) => item.id !== record.id);
-					break;
-			}
-		});
-		if ($currentUser) {
-			try {
-				groupExpanded = await pocketbase
-					.collection('groups')
-					.getOne<GroupParticipantModel>(group.id, {
-						expand: 'participants_via_group'
-					});
-				subscribe<GroupParticipantModel>(
-					'groups',
-					group.id,
-					({ action, record }) => {
-						if (action === 'update') {
-							group = record;
-							groupExpanded = record;
-						}
-						updateGroupScore(group?.id);
-					},
-					{
-						expand: 'participants_via_group'
-					}
-				);
-			} catch (err) {
-				console.error(err);
-			}
-			try {
-				transactions = (
-					await pocketbase.collection('transactions').getList<TransactionExpandedModel>(0, 500, {
-						expand: 'user, participant, group, item',
-						sort: '-created',
-						filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
-					})
-				).items;
-				subscribe<TransactionExpandedModel>(
-					'transactions',
-					'*',
-					({ action, record }) => {
-						if (
-							record.targetType === 'participant' &&
-							!groupExpanded?.expand?.participants_via_group?.find(
-								(p) => p.id === record.participant
-							)
-						) {
-							return;
-						}
-						if (record.targetType === 'group' && record.group !== group?.id) {
-							return;
-						}
-						switch (action) {
-							case 'create':
-								transactions = transactions ? [record, ...transactions] : [record];
-								break;
-							case 'update': {
-								const index = transactions?.findIndex(
-									(transaction) => transaction.id === record.id
-								);
-								if (index !== undefined && transactions && index !== -1) {
-									transactions[index] = record;
-								}
-								break;
+				try {
+					transactions = (
+						await pocketbase.collection('transactions').getList<TransactionExpandedModel>(0, 500, {
+							expand: 'user, participant, group, item',
+							sort: '-created',
+							filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
+						})
+					).items;
+					subscribe<TransactionExpandedModel>(
+						'transactions',
+						'*',
+						({ action, record }) => {
+							if (
+								record.targetType === 'participant' &&
+								!groupExpanded?.expand?.participants_via_group?.find(
+									(p) => p.id === record.participant
+								)
+							) {
+								return;
 							}
-							case 'delete':
-								transactions = transactions?.filter((transaction) => transaction.id !== record.id);
-								break;
+							if (record.targetType === 'group' && record.group !== group?.id) {
+								return;
+							}
+							switch (action) {
+								case 'create':
+									transactions = transactions ? [record, ...transactions] : [record];
+									break;
+								case 'update': {
+									const index = transactions?.findIndex(
+										(transaction) => transaction.id === record.id
+									);
+									if (index !== undefined && transactions && index !== -1) {
+										transactions[index] = record;
+									}
+									break;
+								}
+								case 'delete':
+									transactions = transactions?.filter(
+										(transaction) => transaction.id !== record.id
+									);
+									break;
+							}
+						},
+						{
+							expand: 'user, participant, group, item'
 						}
-					},
-					{
-						expand: 'user, participant, group, item'
-					}
-				);
-			} catch (err) {
-				console.error(err);
-			}
-		} else {
-			subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
-				switch (action) {
-					case 'update':
-						group = record;
-						updateGroupScore(group?.id);
-						break;
-					case 'delete':
-						group = undefined;
-						clientLoad();
-						break;
+					);
+				} catch (err) {
+					console.error(err);
 				}
-			});
+			} else {
+				subscribe<GroupParticipantModel>('groups', group.id, ({ action, record }) => {
+					switch (action) {
+						case 'update':
+							group = record;
+							updateGroupScore(group?.id);
+							break;
+						case 'delete':
+							group = undefined;
+							clientLoad();
+							break;
+					}
+				});
+			}
+		} finally {
+			release();
 		}
 	}
 
@@ -283,13 +293,7 @@
 			{#if $currentUser}
 				<ParticipantCreatePage id={data.id} {groups} />
 			{:else}
-				<div class="mt-20 text-center">
-					<div class="mb-8 flex justify-center">
-						<TriangleAlert size={192} />
-					</div>
-					<h1 class="mb-4 text-6xl font-extrabold">404</h1>
-					<h2 class="text-2xl font-semibold">Not found</h2>
-				</div>
+				<ErrorPage status={404} message={'Not Found'} class="mt-14" />
 			{/if}
 		</div>
 	{:else}

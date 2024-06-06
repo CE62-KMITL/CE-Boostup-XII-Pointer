@@ -50,7 +50,7 @@
 				});
 				score = '0';
 				pushState('.', { subpage: undefined });
-				return 'Score updated!';
+				return 'Score updated successfully!';
 			},
 			error: (err) => {
 				console.error(err);

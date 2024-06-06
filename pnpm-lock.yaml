@@ -14,6 +14,9 @@ importers:
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
+      async-mutex:
+        specifier: ^0.5.0
+        version: 0.5.0
       bits-ui:
         specifier: ^0.21.10
         version: 0.21.10(svelte@4.2.17)
@@ -797,6 +800,9 @@ packages:
 
   assertion-error@1.1.0:
     resolution: {integrity: sha512-jgsaNduz+ndvGyFt3uSuWqvy4lCnIJiovtouQN5JZHOKCS2QuhEdbcQHFhVksz2N2U9hXJo8odG7ETyWlEeuDw==}
+
+  async-mutex@0.5.0:
+    resolution: {integrity: sha512-1A94B18jkJ3DYq284ohPxoXbfTA5HsQ7/Mf4DEhcyLx3Bz27Rh59iScbB6EPiP+B+joue6YCxcMXSbFC1tZKwA==}
 
   autoprefixer@10.4.19:
     resolution: {integrity: sha512-BaENR2+zBZ8xXhM4pUaKUxlVdxZ0EZhjvbopwnXmxRUfqDmwSpC2lAi/QXvx7NRdPCo1WKEcEF6mV64si1z4Ew==}
@@ -3150,6 +3156,10 @@ snapshots:
       is-shared-array-buffer: 1.0.3
 
   assertion-error@1.1.0: {}
+
+  async-mutex@0.5.0:
+    dependencies:
+      tslib: 2.6.2
 
   autoprefixer@10.4.19(postcss@8.4.38):
     dependencies:
