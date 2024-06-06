@@ -1,17 +1,18 @@
 <script lang="ts">
+	import { Mutex } from 'async-mutex';
+	import type { RecordSubscription, SendOptions } from 'pocketbase';
+	import { onDestroy } from 'svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
+
 	import { browser } from '$app/environment';
 	import ErrorPage from '$lib/components/ErrorPage.svelte';
+	import * as Avatar from '$lib/components/ui/avatar';
+	import { format } from '$lib/format-number';
+	import { getInitial } from '$lib/get-initial';
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
-	import { Mutex } from 'async-mutex';
-	import * as Avatar from '$lib/components/ui/avatar';
-	import type { RecordSubscription, SendOptions } from 'pocketbase';
-	import { onDestroy } from 'svelte';
-	import { getInitial } from '$lib/get-initial';
-	import { format } from '$lib/format-number';
-	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
 
 	const mutex = new Mutex();
 

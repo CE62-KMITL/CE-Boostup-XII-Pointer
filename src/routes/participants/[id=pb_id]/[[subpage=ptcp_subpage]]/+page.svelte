@@ -17,9 +17,9 @@
 	import StaffMenu from '$lib/components/StaffMenu.svelte';
 	import SubtractScorePage from '$lib/components/SubtractScorePage.svelte';
 	import TransactionPage from '$lib/components/TransactionPage.svelte';
-	import type { ItemModel } from '$lib/interfaces/item-model.interface.js';
 	import type { GroupModel, GroupParticipantModel } from '$lib/interfaces/group-model.interface.js';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
+	import type { ItemModel } from '$lib/interfaces/item-model.interface.js';
 	import type {
 		ParticipantGroupModel,
 		ParticipantModel
