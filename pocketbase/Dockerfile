@@ -9,6 +9,7 @@ COPY *.go ./
 
 RUN CGO_ENABLED=0 go build -o pocketbase
 
+
 FROM alpine:latest AS runtime
 
 RUN apk --no-cache add ca-certificates tzdata curl && rm -rf /var/cache/apk/*
@@ -20,4 +21,4 @@ COPY staffs-data.secret.json staffs-data.secret.json
 
 EXPOSE 8090
 
-CMD ["pocketbase", "serve", "--http=127.0.0.1:8090"]
+CMD ["/app/pocketbase", "serve", "--http=0.0.0.0:8090"]
