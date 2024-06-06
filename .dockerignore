@@ -1,0 +1,11 @@
+*.secret.*
+*.md
+.eslint*
+.gitignore
+.npmrc
+.prettier*
+.dockerignore
+Dockerfile
+components.json
+docker-compose.yaml
+playwright.config.ts

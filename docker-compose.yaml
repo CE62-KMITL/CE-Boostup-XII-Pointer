@@ -1,0 +1,29 @@
+name: "ce-boostup-xii-pointer"
+
+services:
+  pocketbase:
+    build: pocketbase
+    container_name: ce-boostup-xii-pointer-pocketbase
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pocketbase/pb_data:/app/pb_data
+    healthcheck:
+      test: "curl -I http://localhost:8090 || exit 1"
+      start_period: 10s
+      start_interval: 1s
+    restart: unless-stopped
+
+  sveltekit:
+    build: .
+    container_name: ce-boostup-xii-sveltekit
+    expose:
+      - "3000"
+    environment:
+      - PUBLIC_LOCAL_POCKETBASE_URL=http://pocketbase:8090
+    healthcheck:
+      test: "curl -I http://localhost:3000 || exit 1"
+      start_period: 10s
+      start_interval: 1s
+    restart: unless-stopped
+
