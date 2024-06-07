@@ -16,7 +16,7 @@ services:
 
   sveltekit:
     build: .
-    container_name: ce-boostup-xii-sveltekit
+    container_name: ce-boostup-xii-pointer-sveltekit
     ports:
       - '5173:5173'
     environment:
