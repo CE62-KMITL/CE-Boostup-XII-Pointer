@@ -19,8 +19,6 @@ services:
     container_name: ce-boostup-xii-pointer-sveltekit
     ports:
       - '5173:5173'
-    environment:
-      - PUBLIC_LOCAL_POCKETBASE_URL=http://pocketbase:8090
     healthcheck:
       test: 'curl -I http://localhost:5173 || exit 1'
       start_period: 10s

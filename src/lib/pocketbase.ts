@@ -5,11 +5,9 @@ import { toast } from 'svelte-sonner';
 import { type UserAuthModel } from './interfaces/user-auth-model.interface';
 
 import { browser } from '$app/environment';
-import { PUBLIC_POCKETBASE_URL, PUBLIC_LOCAL_POCKETBASE_URL } from '$env/static/public';
+import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 
-export const pocketbase: PocketBase = browser
-	? new PocketBase(PUBLIC_POCKETBASE_URL)
-	: new PocketBase(PUBLIC_LOCAL_POCKETBASE_URL);
+export const pocketbase: PocketBase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser: Writable<UserAuthModel | null | undefined> = browser
 	? writable<UserAuthModel | null | undefined>(undefined, function start(set) {
