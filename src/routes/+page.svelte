@@ -20,6 +20,7 @@
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 
 	const mutex = new Mutex();
 
@@ -210,6 +211,12 @@
 						class="absolute bottom-0 left-0 top-0 -z-10 rounded-lg bg-slate-200 transition-all duration-500 dark:bg-slate-800"
 					></div>
 				</div>
+			{/each}
+		</div>
+	{:else}
+		<div class="mx-5 space-y-2">
+			{#each Array(6) as _}
+				<Skeleton class="h-14 w-full" />
 			{/each}
 		</div>
 	{/if}
