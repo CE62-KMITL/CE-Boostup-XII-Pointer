@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { Mutex } from 'async-mutex';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
+	import QrScanner from 'qr-scanner';
 	import { onDestroy } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
+	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import ErrorPage from '$lib/components/ErrorPage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
+	import { Button } from '$lib/components/ui/button';
 	import { format } from '$lib/format-number';
 	import { getInitial } from '$lib/get-initial';
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
@@ -20,6 +24,12 @@
 
 	let groups: GroupModel[] | undefined = undefined;
 	let groupsScore: GroupExtendScoreModel[] | undefined = undefined;
+
+	let hasCamera = false;
+
+	let videoElement: HTMLVideoElement | undefined = undefined;
+	let qrScanner: QrScanner | undefined = undefined;
+	let scanning = false;
 
 	$: maxScore = groupsScore?.reduce((acc, group) => Math.max(acc, group.score), 0) ?? 0;
 
@@ -78,6 +88,23 @@
 					}
 					updateGroupsScore();
 				});
+				hasCamera = await QrScanner.hasCamera();
+				if (videoElement) {
+					qrScanner = new QrScanner(
+						videoElement,
+						(result) => {
+							if (result.data.includes(PUBLIC_ORIGIN)) {
+								goto(result.data);
+							}
+						},
+						{
+							maxScansPerSecond: 5,
+							highlightScanRegion: true,
+							highlightCodeOutline: true,
+							returnDetailedScanResult: true
+						}
+					);
+				}
 			}
 		} finally {
 			release();
@@ -85,6 +112,9 @@
 	}
 
 	onDestroy(() => {
+		if (qrScanner) {
+			qrScanner.destroy();
+		}
 		unsubscribes.forEach((unsubscribe) => unsubscribe());
 	});
 </script>
@@ -94,7 +124,35 @@
 </svelte:head>
 
 {#if $currentUser}
-	<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
+	{#if hasCamera}
+		<div class="mx-5 my-4">
+			<Button
+				on:click={() => {
+					scanning = !scanning;
+					if (scanning) {
+						qrScanner?.start();
+					} else {
+						qrScanner?.stop();
+					}
+				}}
+				class="w-full bg-cprimary hover:bg-cprimary">Scan QR Code</Button
+			>
+		</div>
+	{/if}
+	<div class="mx-5 mb-4 flex justify-center">
+		<div class="w-3/4 lg:w-1/2">
+			<video
+				bind:this={videoElement}
+				height={scanning ? 'auto' : '0'}
+				width={scanning ? '100%' : '0'}><track kind="captions" /></video
+			>
+		</div>
+	</div>
+	{#if scanning}
+		<h3 class="mx-5 mb-4 mt-8 text-lg font-medium">Leadearboard</h3>
+	{:else}
+		<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
+	{/if}
 	{#if groupsScore}
 		<div class="mx-5 space-y-2">
 			{#each groupsScore.toSorted((a, b) => b.score - a.score) as group (group.id)}

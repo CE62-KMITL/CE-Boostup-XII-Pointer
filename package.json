@@ -59,6 +59,7 @@
 		"lucide-svelte": "^0.379.0",
 		"mode-watcher": "^0.3.0",
 		"pocketbase": "^0.21.2",
+		"qr-scanner": "^1.4.2",
 		"svelte-device-info": "^1.0.5",
 		"svelte-gestures": "^5.0.1",
 		"svelte-sonner": "^0.3.24",
