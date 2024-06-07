@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { Mutex } from 'async-mutex';
+	import { Scan, X } from 'lucide-svelte';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import QrScanner from 'qr-scanner';
 	import { onDestroy } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
+	import { toast } from 'svelte-sonner';
 
 	import { browser } from '$app/environment';
+	import { navigating } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import ErrorPage from '$lib/components/ErrorPage.svelte';
@@ -17,7 +20,6 @@
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
-	import { Scan, X } from 'lucide-svelte';
 
 	const mutex = new Mutex();
 
@@ -94,8 +96,18 @@
 					qrScanner = new QrScanner(
 						videoElement,
 						(result) => {
-							if (result.data.startsWith(PUBLIC_ORIGIN)) {
-								goto(result.data);
+							if (result.data.startsWith(PUBLIC_ORIGIN) && !$navigating) {
+								const navigatePromise = goto(result.data);
+								toast.promise(navigatePromise, {
+									loading: 'Redirecting...',
+									success: 'Redirected successfully!',
+									error: (err) => {
+										console.error(err);
+										return `An error occured during redirection: ${
+											err instanceof Error ? err.message : 'Unknown error'
+										}`;
+									}
+								});
 							}
 						},
 						{

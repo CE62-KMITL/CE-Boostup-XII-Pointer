@@ -3,6 +3,7 @@
 	import { toast } from 'svelte-sonner';
 
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { PUBLIC_OAUTH_REDIRECT_URL } from '$env/static/public';
 	import { pocketbase } from '$lib/pocketbase';
@@ -45,7 +46,7 @@
 		const provider = JSON.parse(localStorage.getItem('oauthProvider') ?? '{}');
 		localStorage.removeItem('oauthProvider');
 
-		let redirectTo = localStorage.getItem('oauthFinishRedirectTo') ?? '/';
+		let redirectTo = localStorage.getItem('oauthFinishRedirectTo') ?? `${base}/`;
 		if (!redirectTo.startsWith('/')) {
 			redirectTo = '/' + redirectTo;
 		}

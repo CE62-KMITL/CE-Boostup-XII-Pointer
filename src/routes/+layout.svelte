@@ -120,7 +120,7 @@
 </Sheet.Root>
 
 <nav class="mx-5 mb-6 mt-6 flex justify-between space-x-4">
-	<a href={base || '/'} class="w-full min-w-0">
+	<a href={`${base}/`} class="w-full min-w-0">
 		<h1 class="text-2xl font-bold">Pointer</h1>
 		<h2 class="overflow-hidden text-ellipsis text-nowrap text-base font-medium">
 			เว็บเก็บคะแนน CE Boost Up 12
