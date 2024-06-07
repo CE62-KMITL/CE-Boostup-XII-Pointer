@@ -17,6 +17,7 @@
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
+	import { Scan, X } from 'lucide-svelte';
 
 	const mutex = new Mutex();
 
@@ -93,7 +94,7 @@
 					qrScanner = new QrScanner(
 						videoElement,
 						(result) => {
-							if (result.data.includes(PUBLIC_ORIGIN)) {
+							if (result.data.startsWith(PUBLIC_ORIGIN)) {
 								goto(result.data);
 							}
 						},
@@ -125,19 +126,28 @@
 
 {#if $currentUser}
 	{#if hasCamera}
-		<div class="mx-5 my-4">
-			<Button
-				on:click={() => {
-					scanning = !scanning;
-					if (scanning) {
-						qrScanner?.start();
-					} else {
+		{#if scanning}
+			<div class="mx-5 my-4">
+				<Button
+					on:click={() => {
+						scanning = false;
 						qrScanner?.stop();
-					}
-				}}
-				class="w-full bg-cprimary hover:bg-cprimary">Scan QR Code</Button
-			>
-		</div>
+					}}
+					class="w-full bg-red-600 hover:bg-red-600 dark:bg-red-500 hover:dark:bg-red-500"
+					><X class="mr-2" />Stop Scanning</Button
+				>
+			</div>
+		{:else}
+			<div class="mx-5 my-4">
+				<Button
+					on:click={() => {
+						scanning = true;
+						qrScanner?.start();
+					}}
+					class="w-full bg-cprimary hover:bg-cprimary"><Scan class="mr-2" />Scan QR Code</Button
+				>
+			</div>
+		{/if}
 	{/if}
 	<div class="mx-5 mb-4 flex justify-center">
 		<div class="w-3/4 lg:w-1/2">
