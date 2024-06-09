@@ -10,6 +10,7 @@
 
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { navigating } from '$app/stores';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import ErrorPage from '$lib/components/ErrorPage.svelte';
@@ -71,27 +72,33 @@
 				}
 			});
 			unsubscribes = [];
+			const subscriptionPromises: Promise<void>[] = [];
 			if ($currentUser) {
 				groups = await pocketbase.collection('groups').getFullList<GroupModel>();
 				updateGroupsScore();
-				subscribe<GroupModel>('groups', '*', ({ action, record }) => {
-					switch (action) {
-						case 'create':
-							groups = groups ? [...groups, record] : [record];
-							break;
-						case 'update': {
-							const index = groups?.findIndex((group) => group.id === record.id);
-							if (index !== undefined && groups && index !== -1) {
-								groups[index] = record;
+				const groupsSubscriptionPromise = subscribe<GroupModel>(
+					'groups',
+					'*',
+					({ action, record }) => {
+						switch (action) {
+							case 'create':
+								groups = groups ? [...groups, record] : [record];
+								break;
+							case 'update': {
+								const index = groups?.findIndex((group) => group.id === record.id);
+								if (index !== undefined && groups && index !== -1) {
+									groups[index] = record;
+								}
+								break;
 							}
-							break;
+							case 'delete':
+								groups = groups?.filter((group) => group.id !== record.id);
+								break;
 						}
-						case 'delete':
-							groups = groups?.filter((group) => group.id !== record.id);
-							break;
+						updateGroupsScore();
 					}
-					updateGroupsScore();
-				});
+				);
+				subscriptionPromises.push(groupsSubscriptionPromise);
 				hasCamera = await QrScanner.hasCamera();
 				if (videoElement) {
 					qrScanner = new QrScanner(
@@ -120,6 +127,7 @@
 					);
 				}
 			}
+			await Promise.allSettled(subscriptionPromises);
 		} finally {
 			release();
 		}
@@ -179,13 +187,14 @@
 	{#if groupsScore}
 		<div class="mx-5 space-y-2">
 			{#each groupsScore.toSorted((a, b) => b.score - a.score) as group (group.id)}
-				<div
-					class="relative -z-20 flex w-full items-center overflow-hidden rounded-lg bg-slate-100 px-3 py-2 dark:bg-slate-900"
+				<a
+					href={`${base}/groups/${group.id}`}
+					class="relative flex w-full items-center overflow-hidden rounded-lg bg-slate-100 px-3 py-2 dark:bg-slate-900"
 					animate:flip={{ duration: animationDuration }}
 					in:fade={{ duration: animationDuration }}
 					out:fade={{ duration: animationDuration }}
 				>
-					<div class="flex w-0 flex-grow items-center">
+					<div class="z-20 flex w-0 flex-grow items-center">
 						<Avatar.Root class="h-10 w-10">
 							<Avatar.Image
 								src={pocketbase.files.getUrl(group, group.avatar, {
@@ -203,14 +212,14 @@
 							{`บ้าน ${group.name}`}
 						</p>
 					</div>
-					<div class="flex flex-shrink-0 items-center">
+					<div class="z-20 flex flex-shrink-0 items-center">
 						<p class="text-base font-medium">{format(group.score)}</p>
 					</div>
 					<div
 						style="width: {maxScore !== 0 ? (group.score / maxScore) * 100 : 0}%;"
-						class="absolute bottom-0 left-0 top-0 -z-10 rounded-lg bg-slate-200 transition-all duration-500 dark:bg-slate-800"
+						class="absolute bottom-0 left-0 top-0 z-10 rounded-lg bg-slate-200 transition-all duration-500 dark:bg-slate-800"
 					></div>
-				</div>
+				</a>
 			{/each}
 		</div>
 	{:else}
