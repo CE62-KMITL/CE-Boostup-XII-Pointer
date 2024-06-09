@@ -9,18 +9,18 @@
 	import { toast } from 'svelte-sonner';
 
 	import { browser } from '$app/environment';
-	import { navigating } from '$app/stores';
 	import { goto } from '$app/navigation';
+	import { navigating } from '$app/stores';
 	import { PUBLIC_ORIGIN } from '$env/static/public';
 	import ErrorPage from '$lib/components/ErrorPage.svelte';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { Button } from '$lib/components/ui/button';
+	import { Skeleton } from '$lib/components/ui/skeleton';
 	import { format } from '$lib/format-number';
 	import { getInitial } from '$lib/get-initial';
 	import type { GroupExtendScoreModel, GroupModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
-	import { Skeleton } from '$lib/components/ui/skeleton';
 
 	const mutex = new Mutex();
 

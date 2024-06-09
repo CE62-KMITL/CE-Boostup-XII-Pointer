@@ -26,7 +26,7 @@
 					subpage: 'add-score'
 				});
 			}}
-			class="link-btn brounded-b-none rounded-t-lg"
+			class="link-btn rounded-b-none rounded-t-lg"
 		>
 			เพิ่มคะแนน
 			<ChevronRight class="text-slate-400" />

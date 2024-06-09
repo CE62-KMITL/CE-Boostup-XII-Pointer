@@ -134,8 +134,8 @@
 							</div>
 						{/each}
 					{/if}
-				</div></Tabs.Content
-			>
+				</div>
+			</Tabs.Content>
 			<Tabs.Content value="reward"
 				><div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
@@ -149,8 +149,8 @@
 							</div>
 						{/each}
 					{/if}
-				</div></Tabs.Content
-			>
+				</div>
+			</Tabs.Content>
 		</Tabs.Root>
 	</div>
 </div>

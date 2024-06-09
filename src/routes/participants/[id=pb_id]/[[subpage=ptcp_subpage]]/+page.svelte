@@ -14,6 +14,7 @@
 	import GroupView from '$lib/components/GroupView.svelte';
 	import ParticipantCreatePage from '$lib/components/ParticipantCreatePage.svelte';
 	import ParticipantView from '$lib/components/ParticipantView.svelte';
+	import ScoreGraph from '$lib/components/ScoreGraph.svelte';
 	import StaffMenu from '$lib/components/StaffMenu.svelte';
 	import SubtractScorePage from '$lib/components/SubtractScorePage.svelte';
 	import TransactionPage from '$lib/components/TransactionPage.svelte';
@@ -193,13 +194,13 @@
 					console.error(err);
 				}
 				try {
-					transactions = (
-						await pocketbase.collection('transactions').getList<TransactionExpandedModel>(0, 500, {
+					transactions = await pocketbase
+						.collection('transactions')
+						.getFullList<TransactionExpandedModel>({
 							expand: 'user, participant, group, item',
 							sort: '-created',
 							filter: `participant="${participant.id}"||participant.group="${group.id}"||group="${group.id}"`
-						})
-					).items;
+						});
 					const transactionsSubscriptionPromise = subscribe<TransactionExpandedModel>(
 						'transactions',
 						'*',
@@ -326,6 +327,13 @@
 			<BattlePassView {participant} {items} class="mx-5 mb-4 mt-6" />
 			{#if $currentUser}
 				<StaffMenu class="mx-5 mb-4 mt-6" />
+				<ScoreGraph
+					{transactions}
+					{participant}
+					group={groupExpanded}
+					{groupScore}
+					class="mx-5 mb-4 mt-6"
+				/>
 			{/if}
 		</div>
 	{/if}
