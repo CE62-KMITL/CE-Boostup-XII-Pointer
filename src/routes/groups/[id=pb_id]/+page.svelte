@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Mutex } from 'async-mutex';
+	import { ChevronLeft } from 'lucide-svelte';
 	import type { RecordSubscription, SendOptions } from 'pocketbase';
 	import { onDestroy } from 'svelte';
 	import { flip } from 'svelte/animate';
@@ -15,7 +16,6 @@
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
-	import { ChevronLeft } from 'lucide-svelte';
 
 	export let data;
 

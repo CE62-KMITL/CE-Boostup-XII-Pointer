@@ -20,8 +20,10 @@
 	export let transactions: TransactionExpandedModel[] | undefined;
 	export let participant: ParticipantModel;
 
-	let displayCount = 50;
+	let displayCount = 25;
 	$: totalCount = transactions?.length ?? 0;
+
+	$: slicedTransactions = transactions?.slice(0, displayCount) ?? [];
 
 	let tabSelected: 'add' | 'subtract' | 'reward' | 'all' = 'all';
 </script>
@@ -98,68 +100,54 @@
 			</Tabs.List>
 			<Tabs.Content value="all">
 				<div class="mt-4 divide-y divide-slate-300">
-					{#if transactions}
-						{#each transactions.slice(0, displayCount) as transaction (transaction.id)}
-							<div
-								animate:flip={{ duration: animationDuration }}
-								in:fade={{ duration: animationDuration }}
-								out:fade={{ duration: animationDuration }}
-							>
-								<TransactionItem {transaction} {participant} />
-							</div>
-						{/each}
-					{/if}
+					{#each slicedTransactions as transaction (transaction.id)}
+						<div
+							animate:flip={{ duration: animationDuration }}
+							in:fade={{ duration: animationDuration }}
+							out:fade={{ duration: animationDuration }}
+						>
+							<TransactionItem {transaction} {participant} />
+						</div>
+					{/each}
 				</div>
 			</Tabs.Content>
 			<Tabs.Content value="add">
 				<div class="mt-4 divide-y divide-slate-300">
-					{#if transactions}
-						{#each transactions
-							.filter((t) => t.action === 'add')
-							.slice(0, displayCount) as transaction (transaction.id)}
-							<div
-								animate:flip={{ duration: animationDuration }}
-								in:fade={{ duration: animationDuration }}
-								out:fade={{ duration: animationDuration }}
-							>
-								<TransactionItem {transaction} {participant} />
-							</div>
-						{/each}
-					{/if}
+					{#each slicedTransactions.filter((t) => t.action === 'add') as transaction (transaction.id)}
+						<div
+							animate:flip={{ duration: animationDuration }}
+							in:fade={{ duration: animationDuration }}
+							out:fade={{ duration: animationDuration }}
+						>
+							<TransactionItem {transaction} {participant} />
+						</div>
+					{/each}
 				</div>
 			</Tabs.Content>
 			<Tabs.Content value="subtract"
 				><div class="mt-4 divide-y divide-slate-300">
-					{#if transactions}
-						{#each transactions
-							.filter((t) => t.action === 'subtract')
-							.slice(0, displayCount) as transaction (transaction.id)}
-							<div
-								animate:flip={{ duration: animationDuration }}
-								in:fade={{ duration: animationDuration }}
-								out:fade={{ duration: animationDuration }}
-							>
-								<TransactionItem {transaction} {participant} />
-							</div>
-						{/each}
-					{/if}
+					{#each slicedTransactions.filter((t) => t.action === 'subtract') as transaction (transaction.id)}
+						<div
+							animate:flip={{ duration: animationDuration }}
+							in:fade={{ duration: animationDuration }}
+							out:fade={{ duration: animationDuration }}
+						>
+							<TransactionItem {transaction} {participant} />
+						</div>
+					{/each}
 				</div>
 			</Tabs.Content>
 			<Tabs.Content value="reward"
 				><div class="mt-4 divide-y divide-slate-300">
-					{#if transactions}
-						{#each transactions
-							.filter((t) => t.action === 'reward')
-							.slice(0, displayCount) as transaction (transaction.id)}
-							<div
-								animate:flip={{ duration: animationDuration }}
-								in:fade={{ duration: animationDuration }}
-								out:fade={{ duration: animationDuration }}
-							>
-								<TransactionItem {transaction} {participant} />
-							</div>
-						{/each}
-					{/if}
+					{#each slicedTransactions.filter((t) => t.action === 'reward') as transaction (transaction.id)}
+						<div
+							animate:flip={{ duration: animationDuration }}
+							in:fade={{ duration: animationDuration }}
+							out:fade={{ duration: animationDuration }}
+						>
+							<TransactionItem {transaction} {participant} />
+						</div>
+					{/each}
 				</div>
 			</Tabs.Content>
 		</Tabs.Root>
@@ -169,7 +157,7 @@
 					displayCount += displayCountIncrease;
 				}}
 				variant="secondary"
-				class="mt-4 w-full">Load More</Button
+				class="mt-2 w-full">Load More</Button
 			>
 		{/if}
 	</div>
