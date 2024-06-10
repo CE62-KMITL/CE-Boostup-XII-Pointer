@@ -6,6 +6,7 @@
 		"dev": "vite dev",
 		"build:watch": "vite build --watch",
 		"build": "vite build",
+		"build:dev": "vite build --mode development",
 		"preview": "vite preview",
 		"preview:node-prod": "node --env-file=.env.production build/index.js",
 		"preview:node-dev": "node --env-file=.env.development build/index.js",

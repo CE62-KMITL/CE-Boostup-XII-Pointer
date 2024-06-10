@@ -13,10 +13,15 @@
 
 	const animationDuration = 400;
 
+	const displayCountIncrease = 50;
+
 	let className: string = '';
 	export { className as class };
 	export let transactions: TransactionExpandedModel[] | undefined;
 	export let participant: ParticipantModel;
+
+	let displayCount = 50;
+	$: totalCount = transactions?.length ?? 0;
 
 	let tabSelected: 'add' | 'subtract' | 'reward' | 'all' = 'all';
 </script>
@@ -59,7 +64,7 @@
 		}
 	}}
 >
-	<div class="reward-center flex justify-between">
+	<div class="flex items-center justify-between">
 		<Button
 			on:click={() => {
 				pushState('.', { subpage: undefined });
@@ -67,7 +72,7 @@
 			variant="ghost"
 			class="flex-shrink-0"
 		>
-			<div class="reward-center flex">
+			<div class="flex items-center">
 				<ChevronLeft class="mr-1.5" /><span class="text-base font-medium">กลับ</span>
 			</div>
 		</Button>
@@ -94,7 +99,7 @@
 			<Tabs.Content value="all">
 				<div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
-						{#each transactions as transaction (transaction.id)}
+						{#each transactions.slice(0, displayCount) as transaction (transaction.id)}
 							<div
 								animate:flip={{ duration: animationDuration }}
 								in:fade={{ duration: animationDuration }}
@@ -109,7 +114,9 @@
 			<Tabs.Content value="add">
 				<div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
-						{#each transactions.filter((t) => t.action === 'add') as transaction (transaction.id)}
+						{#each transactions
+							.filter((t) => t.action === 'add')
+							.slice(0, displayCount) as transaction (transaction.id)}
 							<div
 								animate:flip={{ duration: animationDuration }}
 								in:fade={{ duration: animationDuration }}
@@ -124,7 +131,9 @@
 			<Tabs.Content value="subtract"
 				><div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
-						{#each transactions.filter((t) => t.action === 'subtract') as transaction (transaction.id)}
+						{#each transactions
+							.filter((t) => t.action === 'subtract')
+							.slice(0, displayCount) as transaction (transaction.id)}
 							<div
 								animate:flip={{ duration: animationDuration }}
 								in:fade={{ duration: animationDuration }}
@@ -139,7 +148,9 @@
 			<Tabs.Content value="reward"
 				><div class="mt-4 divide-y divide-slate-300">
 					{#if transactions}
-						{#each transactions.filter((t) => t.action === 'reward') as transaction (transaction.id)}
+						{#each transactions
+							.filter((t) => t.action === 'reward')
+							.slice(0, displayCount) as transaction (transaction.id)}
 							<div
 								animate:flip={{ duration: animationDuration }}
 								in:fade={{ duration: animationDuration }}
@@ -152,5 +163,14 @@
 				</div>
 			</Tabs.Content>
 		</Tabs.Root>
+		{#if displayCount < totalCount}
+			<Button
+				on:click={() => {
+					displayCount += displayCountIncrease;
+				}}
+				variant="secondary"
+				class="mt-4 w-full">Load More</Button
+			>
+		{/if}
 	</div>
 </div>

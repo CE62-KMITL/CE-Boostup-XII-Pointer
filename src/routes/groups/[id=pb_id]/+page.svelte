@@ -15,6 +15,7 @@
 	import type { GroupParticipantModel } from '$lib/interfaces/group-model.interface';
 	import type { GroupScoreModel } from '$lib/interfaces/group-score.interface.js';
 	import { currentUser, pocketbase } from '$lib/pocketbase';
+	import { ChevronLeft } from 'lucide-svelte';
 
 	export let data;
 
@@ -96,9 +97,20 @@
 </script>
 
 {#if $currentUser}
-	<h3 class="mx-5 my-4 text-lg font-medium">Leadearboard</h3>
+	<div class="flex items-center justify-between">
+		<a
+			href={`${base}/`}
+			class="flex-shrink-0 rounded-lg px-4 py-2 hover:bg-accent hover:text-accent-foreground"
+		>
+			<div class="flex items-center">
+				<ChevronLeft class="mr-1.5" /><span class="text-base font-medium">กลับ</span>
+			</div>
+		</a>
+		<h3 class="flex-shrink-0 text-lg font-bold">Leaderboard</h3>
+		<div class="w-[87.63px]" />
+	</div>
 	{#if group === undefined || groupScore === undefined}
-		<div class="mx-5 flex">
+		<div class="mx-5 my-4 flex">
 			<div class="flex items-center space-x-4">
 				<Skeleton class="h-14 w-14 rounded-full" />
 				<div>
@@ -111,7 +123,7 @@
 			</div>
 		</div>
 	{:else}
-		<div class="mx-5 flex space-x-3">
+		<div class="mx-5 my-4 flex space-x-3">
 			<div class="flex w-full items-center space-x-4">
 				<Avatar.Root class="h-14 w-14">
 					<Avatar.Image
@@ -139,7 +151,7 @@
 		</div>
 	{/if}
 	{#if participants}
-		<div class="mx-5 mt-4 space-y-2">
+		<div class="mx-5 space-y-2">
 			{#each participants.toSorted((a, b) => b.score - a.score) as participant (participant.id)}
 				<a
 					href={`${base}/participants/${participant.id}`}
@@ -164,11 +176,11 @@
 					></div>
 				</a>
 			{:else}
-				<p class="text-center">ไม่มีน้องในกลุ่มนี้</p>
+				<p class="text-center pt-1">ไม่มีน้องในกลุ่มนี้</p>
 			{/each}
 		</div>
 	{:else}
-		<div class="mx-5 mt-4 space-y-2">
+		<div class="mx-5 space-y-2">
 			{#each Array(8) as _}
 				<Skeleton class="h-11 w-full" />
 			{/each}

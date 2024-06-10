@@ -293,7 +293,7 @@
 </svelte:head>
 
 <div class="grid">
-	{#if $currentUser && $page.state.subpage && participant && group && groupExpanded}
+	{#if $currentUser && $page.state?.subpage && participant && group && groupExpanded}
 		<div
 			class="col-start-1 col-end-2 row-start-1 row-end-2"
 			transition:fly={{ duration: 250, x: '100%', easing: quartOut, opacity: 1 }}
