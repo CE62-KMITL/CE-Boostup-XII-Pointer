@@ -1,4 +1,4 @@
-FROM golang:latest AS build
+FROM golang:1.22 AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY *.go ./
 RUN CGO_ENABLED=0 go build -o pocketbase
 
 
-FROM alpine:latest AS runtime
+FROM alpine:3.20 AS runtime
 
 RUN apk --no-cache add ca-certificates tzdata curl && rm -rf /var/cache/apk/*
 
