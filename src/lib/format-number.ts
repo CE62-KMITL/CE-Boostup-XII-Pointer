@@ -8,9 +8,6 @@ export function format(
 		return '0';
 	}
 	if (num > below && num < above) {
-		while (num < Math.pow(0.1, digits)) {
-			digits++;
-		}
 		return num.toLocaleString('en-US', { maximumFractionDigits: digits });
 	}
 	const lookup = [
@@ -36,10 +33,10 @@ export function format(
 		{ value: 1e27, symbol: 'R' },
 		{ value: 1e30, symbol: 'Q' }
 	];
-	const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
-	const exponentialRegexp = /\.0+(?=e)|(?<=\.[0-9]*[1-9])0+(?=e)/;
+	const trailingZerosRegexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
+	const exponentialTrailingZerosRegexp = /\.0+(?=e)|(?<=\.[0-9]*[1-9])0+(?=e)/;
 	const item = lookup.findLast((item) => num >= item.value && num < item.value * 1e3);
 	return item
-		? (num / item.value).toFixed(digits).replace(regexp, '').concat(item.symbol)
-		: num.toExponential(digits).replace(exponentialRegexp, '');
+		? (num / item.value).toFixed(digits).replace(trailingZerosRegexp, '').concat(item.symbol)
+		: num.toExponential(digits).replace(exponentialTrailingZerosRegexp, '');
 }
