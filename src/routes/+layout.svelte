@@ -183,3 +183,5 @@
 </nav>
 
 <slot />
+
+<div class="h-4 w-full"></div>
